@@ -227,8 +227,13 @@ function FiltroSelect({
   return (
     <Select value={valor} onValueChange={aoMudar}>
       <SelectTrigger className="w-[210px] bg-card">
-        <SelectValue placeholder={rotulo} />
+        <span className="truncate">
+          {valor === "todos"
+            ? `${rotulo}: todos`
+            : (valores ? opcoes[valores.indexOf(valor)] : valor)}
+        </span>
       </SelectTrigger>
+
       <SelectContent>
         <SelectItem value="todos">{rotulo}: todos</SelectItem>
         {opcoes.map((o, i) => (
