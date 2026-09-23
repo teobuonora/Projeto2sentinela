@@ -52,8 +52,8 @@ function AuthPage() {
     e.preventDefault();
     const f = new FormData(e.currentTarget);
     const senha = String(f.get("senha"));
-    if (senha.length < 8) return toast.error("A senha deve ter ao menos 8 caracteres.");
-    if (senha !== String(f.get("confirmar"))) return toast.error("As senhas não coincidem.");
+    if (senha.length < 8) { toast.error("A senha deve ter ao menos 8 caracteres."); return; }
+    if (senha !== String(f.get("confirmar"))) { toast.error("As senhas não coincidem."); return; }
     setLoading(true);
     const { data, error } = await supabase.auth.signUp({
       email: String(f.get("email")),
@@ -61,7 +61,7 @@ function AuthPage() {
       options: { emailRedirectTo: window.location.origin, data: { full_name: String(f.get("nome")) } },
     });
     setLoading(false);
-    if (error) return toast.error("Não foi possível criar a conta", { description: error.message });
+    if (error) { toast.error("Não foi possível criar a conta", { description: error.message }); return; }
     if (!data.session) {
       toast.success("Conta criada!", { description: "Enviamos um link de confirmação para o seu e-mail." });
       setModo("entrar");
