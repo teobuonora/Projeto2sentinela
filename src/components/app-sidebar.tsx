@@ -27,6 +27,8 @@ const items = [
 
 export function AppSidebar() {
   const { state } = useSidebar();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const collapsed = state === "collapsed";
   const pathname = useRouterState({ select: (r) => r.location.pathname });
 
