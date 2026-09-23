@@ -1,9 +1,8 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { AlertTriangle, ArrowUpRight, CalendarClock, CheckCircle2, FolderOpen, Search } from "lucide-react";
+import { AlertTriangle, CalendarClock, CheckCircle2, FolderOpen, Search } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
@@ -68,12 +67,6 @@ function Dashboard() {
             Panorama em tempo real das demandas externas recebidas pela VISAT.
           </p>
         </div>
-        <Button asChild>
-          <Link to="/demandas">
-            Abrir quadro Kanban
-            <ArrowUpRight className="size-4" />
-          </Link>
-        </Button>
       </div>
 
       <Card className="card-elevated border-border">
