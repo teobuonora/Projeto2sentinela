@@ -160,3 +160,18 @@
     color: var(--color-foreground);
   }
 }
+
+@layer base {
+  body {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
+}
+
+@utility card-elevated {
+  box-shadow: 0 1px 2px oklch(0.29 0.09 254 / 6%), 0 8px 24px -12px oklch(0.29 0.09 254 / 18%);
+}
