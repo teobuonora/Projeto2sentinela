@@ -25,7 +25,7 @@ import {
   type Status,
 } from "@/lib/sentinela-data";
 
-export const Route = createFileRoute("/demandas")({
+export const Route = createFileRoute("/_authenticated/demandas")({
   head: () => ({
     meta: [
       { title: "Demandas · Kanban Sentinela VISAT" },

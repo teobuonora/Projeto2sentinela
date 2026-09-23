@@ -17,7 +17,7 @@ import {
   useSentinela,
 } from "@/lib/sentinela-data";
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/_authenticated/")({
   head: () => ({
     meta: [
       { title: "Dashboard · Sentinela VISAT" },

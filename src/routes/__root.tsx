@@ -11,11 +11,8 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
-import { AppSidebar } from "@/components/app-sidebar";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Toaster } from "@/components/ui/sonner";
-import { SentinelaProvider } from "@/lib/sentinela-data";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { supabase } from "@/integrations/supabase/client";
 
 function NotFoundComponent() {
   return (
@@ -124,42 +121,21 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const router = useRouter();
+
+  useEffect(() => {
+    const { data } = supabase.auth.onAuthStateChange((event) => {
+      if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
+      router.invalidate();
+      if (event !== "SIGNED_OUT") queryClient.invalidateQueries();
+    });
+    return () => data.subscription.unsubscribe();
+  }, [router, queryClient]);
 
   return (
     <QueryClientProvider client={queryClient}>
-      <SentinelaProvider>
-        <SidebarProvider>
-          <div className="flex min-h-screen w-full bg-background">
-            <AppSidebar />
-            <div className="flex min-w-0 flex-1 flex-col">
-              <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-4 border-b border-border bg-card/90 px-4 backdrop-blur">
-                <div className="flex items-center gap-3">
-                  <SidebarTrigger />
-                  <div className="hidden sm:block">
-                    <p className="font-display text-sm font-semibold">
-                      Secretaria Executiva de Vigilância em Saúde do Trabalhador
-                    </p>
-                    <p className="text-xs text-muted-foreground">Recife · Pernambuco</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="hidden text-right sm:block">
-                    <p className="text-sm font-medium">Téo Buonora</p>
-                    <p className="text-xs text-muted-foreground">Inspetor · VISAT</p>
-                  </div>
-                  <Avatar className="size-9 border border-border">
-                    <AvatarFallback className="bg-primary text-primary-foreground">TB</AvatarFallback>
-                  </Avatar>
-                </div>
-              </header>
-              <main className="min-w-0 flex-1">
-                <Outlet />
-              </main>
-            </div>
-          </div>
-          <Toaster position="top-right" richColors />
-        </SidebarProvider>
-      </SentinelaProvider>
+      <Outlet />
+      <Toaster position="top-right" richColors />
     </QueryClientProvider>
   );
 }
