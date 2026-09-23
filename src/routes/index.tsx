@@ -68,12 +68,6 @@ function Dashboard() {
             Panorama em tempo real das demandas externas recebidas pela VISAT.
           </p>
         </div>
-        <Button asChild>
-          <Link to="/demandas">
-            Abrir quadro Kanban
-            <ArrowUpRight className="size-4" />
-          </Link>
-        </Button>
       </div>
 
       <Card className="card-elevated border-border">
