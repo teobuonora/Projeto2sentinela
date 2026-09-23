@@ -1,6 +1,7 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { LayoutDashboard, KanbanSquare, FileBarChart, Settings, LogOut } from "lucide-react";
-import { toast } from "sonner";
 
 import logo from "@/assets/sentinela-logo.png.asset.json";
 import {
@@ -76,7 +77,12 @@ export function AppSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton
               tooltip="Sair"
-              onClick={() => toast.info("Sessão encerrada", { description: "Protótipo: login simulado." })}
+              onClick={async () => {
+                await queryClient.cancelQueries();
+                queryClient.clear();
+                await supabase.auth.signOut();
+                navigate({ to: "/auth", replace: true });
+              }}
             >
               <LogOut className="size-4" />
               <span>Sair</span>
