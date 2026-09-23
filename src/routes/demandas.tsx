@@ -232,7 +232,7 @@ function FiltroSelect({
       <SelectContent>
         <SelectItem value="todos">{rotulo}: todos</SelectItem>
         {opcoes.map((o, i) => (
-          <SelectItem key={o} value={valores ? valores[i] : o}>
+          <SelectItem key={o} value={valores?.[i] ?? o}>
             {o}
           </SelectItem>
         ))}
