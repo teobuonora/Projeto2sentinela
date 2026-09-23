@@ -1,6 +1,6 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { AlertTriangle, ArrowUpRight, CalendarClock, CheckCircle2, FolderOpen, Search } from "lucide-react";
+import { AlertTriangle, CalendarClock, CheckCircle2, FolderOpen, Search } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
