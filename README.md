@@ -23,7 +23,7 @@ A ferramenta centraliza o recebimento de demandas de órgãos de controle e arti
 
 ---
 
-### 🚀 Funcionalidades
+## 🚀 Funcionalidades
 
 ---
 
@@ -56,12 +56,12 @@ A ferramenta centraliza o recebimento de demandas de órgãos de controle e arti
 
 ## 📸 Evidências
 
-### 1. Visão Geral do Board (Kanban)
+## 1. Visão Geral do Board (Kanban)
 https://trello.com/invite/b/6a8e24da1ec9edf79652c3e9/ATTIa17ec0dadad27ab9ce3d3248c07f1bad9D3888E0/fds-visat
 <img width="1716" height="769" alt="image" src="https://github.com/user-attachments/assets/b0892f85-4f3b-4260-9518-c41f1acc5db1" />
 
 
-### 2. Backlog Priorizado
+## 2. Backlog Priorizado
 <img width="1343" height="829" alt="image" src="https://github.com/user-attachments/assets/15ce0ef1-a20b-4573-9452-c0df15cdf193" />
 
 
@@ -75,7 +75,7 @@ https://visat-sentinel-hub.lovable.app
 https://youtu.be/3X2HAB32n10
 ---
 
-### 👥 Prática de Programação em Par (Pair Programming)
+## 👥 Prática de Programação em Par (Pair Programming)
 
 Durante o ciclo de desenvolvimento da **Sprint 01**, a equipe do projeto **Sentinela VISAT** aplicou a prática ágil de **Pair Programming** (Programação em Par) para a implementação das histórias priorizadas do backlog. 
 
@@ -83,7 +83,7 @@ O revezamento entre **Piloto** (*Driver* — responsável pela codificação ati
 
 ---
 
-## 📋 Resumo das Sessões Realizadas na Sprint 01
+### 📋 Resumo das Sessões Realizadas na Sprint 01
 
 | Sessão | Dupla de Desenvolvimento | Histórias Atendidas | Foco Técnico | Duração |
 | :--- | :--- | :--- | :--- | :--- |
@@ -94,7 +94,7 @@ O revezamento entre **Piloto** (*Driver* — responsável pela codificação ati
 
 ---
 
-## 🔍 Relato Detalhado das Sessões de Pareamento
+### 🔍 Relato Detalhado das Sessões de Pareamento
 
 ## 1. Cadastro de Demanda e Atribuição de Responsável (UH1 & UH2)
 - **Dupla:** **Téo Buonora** (Piloto / Full-Stack) e **Rubens Souza** (Copiloto / Arquiteto & Back-end)
@@ -104,21 +104,21 @@ O revezamento entre **Piloto** (*Driver* — responsável pela codificação ati
 - **Dinâmica do Pareamento:** Téo estruturou os componentes do modal (`demanda-modal.tsx`), campos de formulário e a integração com o banco de dados. Rubens atuou verificando o esquema relacional da tabela `demandas`, tipos TypeScript e a reatividade do estado global para que a nova demanda aparecesse instantaneamente na coluna *"Recebidas"*.
 - **Desafio Superado:** Tratamento de validação para impedir protocolos em branco e sincronização em tempo real (*realtime*) para evitar inconsistências caso múltiplos servidores estejam operando o sistema simultaneamente.
 
-## 2. Movimentação dos Cards no Kanban de Inspeção (UH3)
+### 2. Movimentação dos Cards no Kanban de Inspeção (UH3)
 - **Dupla:** **João Gabriel** (Piloto / Front-end) e **Rafael Gurgel** (Copiloto / Scrum Master)
 - **História Atendida:** 
   - **UH3: Mover Cards de Status da Inspeção** (Fluxo entre as colunas: *Recebidas*, *Em Análise*, *Em Atendimento* e *Concluídas*).
 - **Dinâmica do Pareamento:** João programou a manipulação nativa de eventos HTML5 Drag-and-Drop (`onDragStart`, `onDragOver`, `onDrop`) e a atualização visual dos cards. Rafael conferiu a conformidade com o fluxo de trabalho da VISAT e validou os estados de transição válidos entre as colunas.
 - **Desafio Superado:** Eliminar o efeito visual de tremulação (*flickering*) quando um card é arrastado sobre colunas sem demandas e garantir que a mutação no banco persista a nova coluna de status imediatamente.
 
-## 3. Anexo e Armazenamento de Relatórios Técnicos (UH4)
+### 3. Anexo e Armazenamento de Relatórios Técnicos (UH4)
 - **Dupla:** **Lucas Soares** (Piloto / UI & Front-end) e **Téo Buonora** (Copiloto / Back-end)
 - **História Atendida:** 
   - **UH4: Anexo de Relatórios Técnicos** (Área de upload para pareceres, laudos em PDF e planilhas CSV).
 - **Dinâmica do Pareamento:** Lucas construiu a interface da zona de upload com suporte a *drag & drop* de arquivos, validação visual de extensões e limites de tamanho (até 20 MB). Téo orientou a comunicação com o bucket de armazenamento de arquivos no servidor, a geração de links para download seguro e o cancelamento/remoção de anexos.
 - **Desafio Superado:** Garantir que o upload do arquivo físico ocorra de forma assíncrona com tratamento de erros (ex: formato inválido ou arquivo muito grande) sem bloquear a gravação dos dados textuais da demanda.
 
-## 4. Sinalização e Alerta Visual de Prazos Legais (UH5)
+### 4. Sinalização e Alerta Visual de Prazos Legais (UH5)
 - **Dupla:** **Pedro Peixoto** (Piloto / QA & Testes) e **Heitor D'Albuquerque** (Copiloto / Product Owner)
 - **História Atendida:** 
   - **UH5: Alerta Visual de Prazos Vencendo** (Classificação visual automática por semáforo de criticidade).
@@ -130,7 +130,7 @@ O revezamento entre **Piloto** (*Driver* — responsável pela codificação ati
 
 ---
 
-## 💡 Lições Aprendidas e Benefícios Observados
+### 💡 Lições Aprendidas e Benefícios Observados
 
 1. **Detecção Imediata de Bugs de Integração:** Erros de tipagem e assincronia foram corrigidos durante a digitação no pair programming, dispensando sessões demoradas de depuração pós-merge.
 2. **Nivelamento Técnico da Equipe:** Os membros voltados a design/front-end aprofundaram conhecimento em persistência e APIs de storage, enquanto os desenvolvedores de back-end aprimoraram a experiência do usuário (UX).
@@ -138,13 +138,13 @@ O revezamento entre **Piloto** (*Driver* — responsável pela codificação ati
 
 ---
 
-### 🐛 Rastreamento de Bugs e Defeitos (Issue & Bug Tracker)
+## 🐛 Rastreamento de Bugs e Defeitos (Issue & Bug Tracker)
 
 Para garantir a qualidade contínua do software e a rastreabilidade do ciclo de vida dos defeitos, a equipe utilizou o processo de registro de *issues/bugs*. Abaixo está o consolidado dos problemas identificados durante os testes exploratórios e de integração, classificados por severidade e com suas respectivas soluções implementadas.
 
 ---
 
-## 📊 Matriz de Rastreamento de Defeitos
+### 📊 Matriz de Rastreamento de Defeitos
 
 | ID | Descrição do Defeito | Severidade | Módulo Afetado | Responsável | Status | Solução Aplicada |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -156,12 +156,12 @@ Para garantir a qualidade contínua do software e a rastreabilidade do ciclo de 
 | **BUG-06** | Erro de tipagem no componente de erro raiz (`ErrorComponentProps`) após atualização dos pacotes do TanStack Router | **Média** | Core / Rotas | Rafael Gurgel | **Resolvido** | Adequação da assinatura das props do componente de fallback de erro e rebuild da árvore de rotas geradas. |
 
 ---
-### Sprint e Backlog
+## Sprint e Backlog
 https://trello.com/invite/b/6a8e24da1ec9edf79652c3e9/ATTIa17ec0dadad27ab9ce3d3248c07f1bad9D3888E0/fds-visat
 <img width="1595" height="838" alt="image" src="https://github.com/user-attachments/assets/4b874d2d-ba44-44ce-b0eb-cbe1ef480c61" />
 
 ---
-### Screencast
+## Screencast
 
 UH1
 https://github.com/user-attachments/assets/7b8fdaf1-77a5-4389-94ec-c39fee3871d3
