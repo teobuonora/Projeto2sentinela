@@ -136,6 +136,7 @@ O revezamento entre **Piloto** (*Driver* — responsável pela codificação ati
 2. **Nivelamento Técnico da Equipe:** Os membros voltados a design/front-end aprofundaram conhecimento em persistência e APIs de storage, enquanto os desenvolvedores de back-end aprimoraram a experiência do usuário (UX).
 3. **Aderência aos Critérios de Aceitação:** A participação ativa dos papéis de Scrum Master e Product Owner nas duplas garantiu que todas as histórias (UH1 a UH5) fossem entregues estritamente de acordo com as necessidades operacionais da VISAT.
 
+---
 
 ## 🐛 Rastreamento de Bugs e Defeitos (Issue & Bug Tracker)
 
@@ -155,3 +156,5 @@ Para garantir a qualidade contínua do software e a rastreabilidade do ciclo de 
 | **BUG-06** | Erro de tipagem no componente de erro raiz (`ErrorComponentProps`) após atualização dos pacotes do TanStack Router | **Média** | Core / Rotas | Rafael Gurgel | **Resolvido** | Adequação da assinatura das props do componente de fallback de erro e rebuild da árvore de rotas geradas. |
 
 ---
+### Sprint e Backlog
+<img width="1595" height="838" alt="image" src="https://github.com/user-attachments/assets/4b874d2d-ba44-44ce-b0eb-cbe1ef480c61" />
