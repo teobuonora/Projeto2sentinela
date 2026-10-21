@@ -14,7 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      demandas: {
+        Row: {
+          anexos: Json
+          assunto: string
+          created_at: string
+          historico: Json
+          id: string
+          inspetor: string
+          orgao: string
+          parecer: string
+          prazo: string
+          protocolo: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          anexos?: Json
+          assunto?: string
+          created_at?: string
+          historico?: Json
+          id: string
+          inspetor: string
+          orgao: string
+          parecer?: string
+          prazo: string
+          protocolo: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          anexos?: Json
+          assunto?: string
+          created_at?: string
+          historico?: Json
+          id?: string
+          inspetor?: string
+          orgao?: string
+          parecer?: string
+          prazo?: string
+          protocolo?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
