@@ -126,14 +126,20 @@ function Configuracoes() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">E-mail institucional</Label>
-              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+              <Input id="email" type="email" value={email} readOnly disabled />
+              <p className="text-xs text-muted-foreground">O e-mail de acesso não pode ser alterado aqui.</p>
             </div>
             <div className="space-y-2">
               <Label htmlFor="cargo">Cargo</Label>
-              <Input id="cargo" defaultValue="Inspetor de Vigilância em Saúde do Trabalhador" />
+              <Input
+                id="cargo"
+                placeholder="Ex.: Inspetor de Vigilância em Saúde do Trabalhador"
+                value={cargo}
+                onChange={(e) => setCargo(e.target.value)}
+              />
             </div>
-            <Button onClick={() => toast.success("Perfil atualizado com sucesso")}>
-              Salvar alterações
+            <Button onClick={salvarPerfil} disabled={salvando}>
+              {salvando ? "Salvando..." : "Salvar alterações"}
             </Button>
           </CardContent>
         </Card>
@@ -149,7 +155,13 @@ function Configuracoes() {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="atual">Senha atual</Label>
-              <Input id="atual" type="password" placeholder="••••••••" />
+              <Input
+                id="atual"
+                type="password"
+                placeholder="••••••••"
+                value={atual}
+                onChange={(e) => setAtual(e.target.value)}
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="nova">Nova senha</Label>
@@ -187,14 +199,10 @@ function Configuracoes() {
               </li>
             </ul>
             <Button
-              disabled={!validas || senha !== confirma}
-              onClick={() => {
-                toast.success("Senha alterada com sucesso");
-                setSenha("");
-                setConfirma("");
-              }}
+              disabled={!validas || senha !== confirma || !atual || alterando}
+              onClick={alterarSenha}
             >
-              Alterar senha
+              {alterando ? "Alterando..." : "Alterar senha"}
             </Button>
           </CardContent>
         </Card>
