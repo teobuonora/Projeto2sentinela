@@ -232,7 +232,10 @@ export function SentinelaProvider({ children }: { children: ReactNode }) {
 
   const carregar = useCallback(async () => {
     const { data, error } = await supabase.from("demandas").select("*").order("created_at", { ascending: false });
-    if (error) return toast.error("Erro ao carregar demandas");
+    if (error) {
+      toast.error("Erro ao carregar demandas");
+      return;
+    }
     setDemandas((data as Row[]).map(fromRow));
   }, []);
 
