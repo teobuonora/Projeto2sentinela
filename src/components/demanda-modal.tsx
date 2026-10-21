@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { Archive, FileUp, Send, X } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+
+const nomeAnexo = (p: string) => p.split("/").pop() ?? p;
 
 import { Button } from "@/components/ui/button";
 import {
@@ -53,6 +56,7 @@ const vazia = (id: string): Demanda => ({
 export function DemandaModal({ open, onOpenChange, demanda }: Props) {
   const { upsert, remover, novoId } = useSentinela();
   const [form, setForm] = useState<Demanda>(vazia("novo"));
+  const [enviando, setEnviando] = useState(false);
 
   useEffect(() => {
     if (open) setForm(demanda ? { ...demanda } : vazia(novoId()));
