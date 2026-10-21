@@ -74,8 +74,8 @@ https://visat-sentinel-hub.lovable.app
 ## 5. ▶ Vídeo
 https://youtu.be/3X2HAB32n10
 ---
-
-## 👥 Prática de Programação em Par (Pair Programming)
+---
+# 👥 Prática de Programação em Par (Pair Programming)
 
 Durante o ciclo de desenvolvimento da **Sprint 01**, a equipe do projeto **Sentinela VISAT** aplicou a prática ágil de **Pair Programming** (Programação em Par) para a implementação das histórias priorizadas do backlog. 
 
