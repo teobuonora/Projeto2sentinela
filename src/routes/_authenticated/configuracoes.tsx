@@ -1,4 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
 import { ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
@@ -37,10 +38,19 @@ const regras = [
 ];
 
 function Configuracoes() {
-  const [nome, setNome] = useState("Téo Buonora Valença");
-  const [email, setEmail] = useState("teo.valenca@visat.recife.pe.gov.br");
+  const { user } = Route.useRouteContext();
+  const router = useRouter();
+  const meta = (user.user_metadata ?? {}) as Record<string, unknown>;
+  const [nome, setNome] = useState(
+    (meta["full_name"] as string) || (meta["name"] as string) || "",
+  );
+  const email = user.email ?? "";
+  const [cargo, setCargo] = useState((meta["cargo"] as string) || "");
+  const [atual, setAtual] = useState("");
   const [senha, setSenha] = useState("");
   const [confirma, setConfirma] = useState("");
+  const [salvando, setSalvando] = useState(false);
+  const [alterando, setAlterando] = useState(false);
   const [prefs, setPrefs] = useState({
     email: true,
     prazo: true,
@@ -49,6 +59,52 @@ function Configuracoes() {
   });
 
   const validas = regras.every((r) => r.teste(senha));
+
+  async function salvarPerfil() {
+    if (!nome.trim()) {
+      toast.error("Informe seu nome completo.");
+      return;
+    }
+    setSalvando(true);
+    const { error } = await supabase.auth.updateUser({
+      data: { full_name: nome.trim(), cargo: cargo.trim() },
+    });
+    setSalvando(false);
+    if (error) {
+      toast.error("Não foi possível salvar o perfil", { description: error.message });
+      return;
+    }
+    toast.success("Perfil atualizado com sucesso");
+    router.invalidate();
+  }
+
+  async function alterarSenha() {
+    if (!atual) {
+      toast.error("Informe sua senha atual.");
+      return;
+    }
+    setAlterando(true);
+    const { error: authErr } = await supabase.auth.signInWithPassword({
+      email,
+      password: atual,
+    });
+    if (authErr) {
+      setAlterando(false);
+      toast.error("Senha atual incorreta.");
+      return;
+    }
+    const { error } = await supabase.auth.updateUser({ password: senha });
+    setAlterando(false);
+    if (error) {
+      toast.error("Não foi possível alterar a senha", { description: error.message });
+      return;
+    }
+    toast.success("Senha alterada com sucesso");
+    setAtual("");
+    setSenha("");
+    setConfirma("");
+  }
+
 
   return (
     <div className="space-y-5 p-4 sm:p-6">
