@@ -79,7 +79,10 @@ function Relatorios() {
   }, [demandas, de, ate, status]);
 
   const exportar = async (formato: "PDF" | "CSV") => {
-    if (!linhas.length) return toast.error("Nenhum registro para exportar com os filtros atuais.");
+    if (!linhas.length) {
+      toast.error("Nenhum registro para exportar com os filtros atuais.");
+      return;
+    }
     try {
       const { exportarCsv, exportarPdf } = await import("@/lib/exportar-relatorio");
       if (formato === "CSV") exportarCsv(linhas);
