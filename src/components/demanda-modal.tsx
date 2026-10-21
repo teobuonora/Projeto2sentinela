@@ -241,7 +241,10 @@ export function DemandaModal({ open, onOpenChange, demanda }: Props) {
                         const { data, error } = await supabase.storage
                           .from("anexos")
                           .createSignedUrl(a, 60, { download: nomeAnexo(a) });
-                        if (error || !data) return toast.error("Não foi possível baixar o arquivo");
+                        if (error || !data) {
+                          toast.error("Não foi possível baixar o arquivo");
+                          return;
+                        }
                         window.open(data.signedUrl, "_blank");
                       }}
                     >
