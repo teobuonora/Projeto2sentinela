@@ -128,3 +128,47 @@ A prática foi estruturada no modelo clássico de **Piloto (Driver)** — respon
 2. **Disseminação do Conhecimento:** Integrantes com foco em UI compreenderam a camada de comunicação assíncrona com o backend, enquanto os desenvolvedores de dados entenderam melhor os impactos da renderização reativa nos componentes visuais.
 3. **Comunicação e Alinhamento:** O pareamento entre desenvolvedores e papéis de PO/Scrum Master encurtou o ciclo de feedback das regras de negócio, garantindo que as histórias fossem entregues estritamente conforme o planejado.
 
+## 🐛 Rastreamento de Bugs e Defeitos (Issue & Bug Tracker)
+
+Para garantir a qualidade contínua do software e a rastreabilidade do ciclo de vida dos defeitos, a equipe utilizou o processo de registro de *issues/bugs*. Abaixo está o consolidado dos problemas identificados durante os testes exploratórios e de integração, classificados por severidade e com suas respectivas soluções implementadas.
+
+---
+
+### 📊 Matriz de Rastreamento de Defeitos
+
+| ID | Descrição do Defeito | Severidade | Módulo Afetado | Responsável | Status | Solução Aplicada |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **BUG-01** | Perda de alterações e novas demandas criadas após atualizar a página (F5) ou acesso por múltiplos navegadores | **Crítica** | Dados & Estado Global | Téo Buonora | **Resolvido** | Migração do estado em memória local para persistência relacional na tabela `demandas` com sincronização via canal Realtime. |
+| **BUG-02** | Tela Minha Conta / Configurações exibia dados estáticos e alteração de senha apenas emitia toast sem atualizar credenciais | **Alta** | Perfil & Autenticação | Rubens Souza | **Resolvido** | Integração do formulário aos dados reais da sessão ativa (`user_metadata`) e chamada ao serviço de atualização de senha com reautenticação prévia. |
+| **BUG-03** | Upload de arquivos na modal de demandas salvava apenas o nome do arquivo, sem armazenar o binário no servidor (UH4) | **Alta** | Anexos & Storage | Lucas Soares | **Resolvido** | Configuração do bucket de armazenamento para relatórios técnicos (PDF/CSV até 20MB) com download e deleção física sincronizada. |
+| **BUG-04** | Botões de exportação de relatório gerencial na tela de auditoria apenas mostravam notificação de sucesso sem baixar arquivos (HU16) | **Média** | Relatórios | Pedro Peixoto | **Resolvido** | Implementação de rotinas de conversão e geração de PDF com cabeçalho institucional e download direto de arquivos CSV formatados. |
+| **BUG-05** | Incompatibilidade de tipos e quebra de montagem da modal de demandas após refatoração dos anexos para objeto | **Alta** | Interface / Modal | João Gabriel | **Resolvido** | Correção da tipagem TypeScript da interface `Demanda` e sanitização de dados legados no carregamento de anexos. |
+| **BUG-06** | Erro de tipagem no componente de erro raiz (`ErrorComponentProps`) após atualização dos pacotes do TanStack Router | **Média** | Core / Rotas | Rafael Gurgel | **Resolvido** | Adequação da assinatura das props do componente de fallback de erro e rebuild da árvore de rotas geradas. |
+
+---
+
+### 📝 Padrão Adotado para Relato de Bugs (Bug Template)
+
+Para abertura de novas ocorrências no repositório, foi convencionado o seguinte template no GitHub Issues:
+
+```text
+**Título:** [MÓDULO] Descrição resumida e clara do comportamento incorreto
+
+**1. Contexto & Comportamento Atual:**
+Explicação detalhada do que está acontecendo de errado no sistema.
+
+**2. Comportamento Esperado:**
+O que deveria ocorrer segundo os critérios de aceitação da história de usuário.
+
+**3. Passos para Reproduzir:**
+1. Acessar a tela X;
+2. Clicar na ação Y;
+3. Observar o erro Z.
+
+**4. Evidências:**
+Prints de tela, mensagens de erro do console ou logs de requisição.
+
+**5. Informações do Ambiente:**
+- Navegador / Versão: Chrome / Firefox
+- SO: Windows 11 / macOS / Linux
+- Severidade: [Crítica | Alta | Média | Baixa]
