@@ -8,6 +8,13 @@
       "when": 1792607433321,
       "tag": "0000_create_demandas",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1792608837846,
+      "tag": "0001_anexos_storage_policies",
+      "breakpoints": true
     }
   ]
 }
