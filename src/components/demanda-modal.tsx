@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { Archive, FileUp, Send, X } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+
+const nomeAnexo = (p: string) => p.split("/").pop() ?? p;
 
 import { Button } from "@/components/ui/button";
 import {
@@ -53,6 +56,7 @@ const vazia = (id: string): Demanda => ({
 export function DemandaModal({ open, onOpenChange, demanda }: Props) {
   const { upsert, remover, novoId } = useSentinela();
   const [form, setForm] = useState<Demanda>(vazia("novo"));
+  const [enviando, setEnviando] = useState(false);
 
   useEffect(() => {
     if (open) setForm(demanda ? { ...demanda } : vazia(novoId()));
@@ -195,27 +199,64 @@ export function DemandaModal({ open, onOpenChange, demanda }: Props) {
                 multiple
                 accept=".pdf,.csv"
                 className="hidden"
-                onChange={(e) => {
-                  const nomes = Array.from(e.target.files ?? []).map((f) => f.name);
-                  if (nomes.length) {
-                    set("anexos", [...form.anexos, ...nomes]);
-                    toast.success(`${nomes.length} arquivo(s) anexado(s)`);
+                disabled={enviando}
+                onChange={async (e) => {
+                  const files = Array.from(e.target.files ?? []);
+                  e.target.value = "";
+                  if (!files.length) return;
+                  setEnviando(true);
+                  const novos: string[] = [];
+                  for (const f of files) {
+                    if (f.size > 20 * 1024 * 1024) {
+                      toast.error(`${f.name} excede 20 MB`);
+                      continue;
+                    }
+                    const path = `${crypto.randomUUID()}/${f.name}`;
+                    const { error } = await supabase.storage.from("anexos").upload(path, f);
+                    if (error) toast.error(`Falha ao enviar ${f.name}`);
+                    else novos.push(path);
+                  }
+                  setEnviando(false);
+                  if (novos.length) {
+                    setForm((prev) => ({ ...prev, anexos: [...prev.anexos, ...novos] }));
+                    toast.success(`${novos.length} arquivo(s) enviado(s)`);
                   }
                 }}
               />
             </label>
+            {enviando && <p className="text-xs text-muted-foreground">Enviando arquivos...</p>}
             {form.anexos.length > 0 && (
               <ul className="space-y-1">
                 {form.anexos.map((a) => (
                   <li
                     key={a}
-                    className="flex items-center justify-between rounded-md border border-border bg-card px-3 py-1.5 text-sm"
+                    className="flex items-center justify-between gap-2 rounded-md border border-border bg-card px-3 py-1.5 text-sm"
                   >
-                    <span className="truncate">{a}</span>
+                    <button
+                      type="button"
+                      className="truncate text-left text-primary hover:underline disabled:text-foreground disabled:no-underline"
+                      disabled={!a.includes("/")}
+                      title={a.includes("/") ? "Baixar arquivo" : "Arquivo de demonstração (sem conteúdo)"}
+                      onClick={async () => {
+                        const { data, error } = await supabase.storage
+                          .from("anexos")
+                          .createSignedUrl(a, 60, { download: nomeAnexo(a) });
+                        if (error || !data) {
+                          toast.error("Não foi possível baixar o arquivo");
+                          return;
+                        }
+                        window.open(data.signedUrl, "_blank");
+                      }}
+                    >
+                      {nomeAnexo(a)}
+                    </button>
                     <button
                       type="button"
                       className="text-muted-foreground transition-colors hover:text-danger"
-                      onClick={() => set("anexos", form.anexos.filter((x) => x !== a))}
+                      onClick={async () => {
+                        if (a.includes("/")) await supabase.storage.from("anexos").remove([a]);
+                        setForm((prev) => ({ ...prev, anexos: prev.anexos.filter((x) => x !== a) }));
+                      }}
                     >
                       <X className="size-4" />
                     </button>
