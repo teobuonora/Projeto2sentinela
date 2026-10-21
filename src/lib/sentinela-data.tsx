@@ -1,4 +1,6 @@
-import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 export type Status = "recebidas" | "analise" | "atendimento" | "concluidas";
 
@@ -205,39 +207,93 @@ type Ctx = {
 };
 
 const DataContext = createContext<Ctx | null>(null);
+void seed;
+
+type Row = {
+  id: string; protocolo: string; orgao: string; inspetor: string; prazo: string;
+  status: string; assunto: string; parecer: string; anexos: unknown; historico: unknown;
+};
+const fromRow = (r: Row): Demanda => ({
+  ...r,
+  status: r.status as Status,
+  anexos: (r.anexos as string[]) ?? [],
+  historico: (r.historico as Demanda["historico"]) ?? [],
+});
+const toRow = (d: Demanda) => ({
+  id: d.id, protocolo: d.protocolo, orgao: d.orgao, inspetor: d.inspetor, prazo: d.prazo,
+  status: d.status, assunto: d.assunto, parecer: d.parecer, anexos: d.anexos, historico: d.historico,
+  updated_at: new Date().toISOString(),
+});
 
 export function SentinelaProvider({ children }: { children: ReactNode }) {
-  const [demandas, setDemandas] = useState<Demanda[]>(seed);
+  const [demandas, setDemandas] = useState<Demanda[]>([]);
+  const ref = useRef(demandas);
+  ref.current = demandas;
+
+  const carregar = useCallback(async () => {
+    const { data, error } = await supabase.from("demandas").select("*").order("created_at", { ascending: false });
+    if (error) return toast.error("Erro ao carregar demandas");
+    setDemandas((data as Row[]).map(fromRow));
+  }, []);
+
+  useEffect(() => {
+    carregar();
+    const ch = supabase
+      .channel("demandas-sync")
+      .on("postgres_changes", { event: "*", schema: "public", table: "demandas" }, () => carregar())
+      .subscribe();
+    return () => {
+      supabase.removeChannel(ch);
+    };
+  }, [carregar]);
+
+  const salvar = async (d: Demanda) => {
+    const { error } = await supabase.from("demandas").upsert(toRow(d) as never);
+    if (error) {
+      toast.error("Não foi possível salvar a demanda");
+      carregar();
+    }
+  };
 
   const value = useMemo<Ctx>(
     () => ({
       demandas,
-      novoId: () => Math.random().toString(36).slice(2, 9),
-      upsert: (d) =>
+      novoId: () => crypto.randomUUID(),
+      upsert: (d) => {
         setDemandas((prev) =>
           prev.some((p) => p.id === d.id) ? prev.map((p) => (p.id === d.id ? d : p)) : [d, ...prev],
-        ),
-      mover: (id, status) =>
-        setDemandas((prev) =>
-          prev.map((p) =>
-            p.id === id
-              ? {
-                  ...p,
-                  status,
-                  historico: [
-                    ...p.historico,
-                    {
-                      data: new Date().toISOString().slice(0, 10),
-                      autor: "Téo Buonora",
-                      acao: `Movida para ${STATUS_LIST.find((s) => s.id === status)?.label}`,
-                    },
-                  ],
-                }
-              : p,
-          ),
-        ),
-      remover: (id) => setDemandas((prev) => prev.filter((p) => p.id !== id)),
+        );
+        salvar(d);
+      },
+      mover: (id, status) => {
+        const p = ref.current.find((x) => x.id === id);
+        if (!p) return;
+        const d: Demanda = {
+          ...p,
+          status,
+          historico: [
+            ...p.historico,
+            {
+              data: new Date().toISOString().slice(0, 10),
+              autor: "Sistema",
+              acao: `Movida para ${STATUS_LIST.find((s) => s.id === status)?.label}`,
+            },
+          ],
+        };
+        setDemandas((prev) => prev.map((x) => (x.id === id ? d : x)));
+        salvar(d);
+      },
+      remover: (id) => {
+        setDemandas((prev) => prev.filter((p) => p.id !== id));
+        supabase.from("demandas").delete().eq("id", id).then(({ error }) => {
+          if (error) {
+            toast.error("Não foi possível remover a demanda");
+            carregar();
+          }
+        });
+      },
     }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [demandas],
   );
 
