@@ -1,92 +1,78 @@
-# Sentinela Dashboard
+<img width="1408" height="768" alt="Gemini_Generated_Image_lgc4crlgc4crlgc4" src="https://github.com/user-attachments/assets/1150479c-7a18-4052-80ed-24d0b8ca0e08" />
 
-Por favor, crie um protótipo funcional e profissional para uma aplicação web chamada "Sentinela". 
+# 👁️ SENTINELA
+---
 
-[Vou anexar a logo do projeto/VISAT nesta mensagem para você usar na barra de navegação superior].
+## 🎯 Sobre o Produto
+Uma aplicação web desenvolvida especificamente para a **Secretaria Executiva de Vigilância em Saúde do Trabalhador (VISAT) / Secretaria de Saúde do Recife**. 
 
-**Contexto da Organização e do Produto:**
+A ferramenta centraliza o recebimento de demandas de órgãos de controle e articulação (MPT, TRT, Conselhos, Sindicatos), gerencia a execução das inspeções pela equipe técnica e fornece painéis com indicadores de tempo real. O objetivo é evitar a perda de prazos legais, rastrear a carga de trabalho e extinguir o uso de planilhas locais para gestão de processos institucionais.
 
-Este é um sistema interno desenvolvido especificamente para a organização VISAT (Secretaria Executiva de Vigilância em Saúde do Trabalhador). O "Sentinela" tem o objetivo de modernizar a gestão interna da VISAT, centralizando o recebimento de demandas de órgãos de controle externos (como MPT, TRT e Sindicatos). A ferramenta é essencial para organizar o fluxo de trabalho dos inspetores da VISAT, rastrear a carga de trabalho, evitar a perda de prazos legais e substituir totalmente o uso de planilhas manuais.
+---
 
-**Estilo Visual e UI/UX:**
+## 👥 Equipe e Papéis
+| Integrante | Função | GitHub |
+| :--- | :--- | :--- |
+| **[Téo Buonora]** | Desenvolvedor Back-end |  [@Github](https://github.com/teobuonora) |
+| **[Rafael Gurgel]** | Scrum Master | [@Github](https://github.com/RafaelGMedeiros) |
+| **[Lucas Soares]** | Líder de Front-end & UI/UX | [@Github](https://github.com/LSP4-EXVI) |
+| **[João Gabriel de Melo]** | Desenvolvedor Front-end | [@Github](https://github.com/jgml329) |
+| **[Rubens Souza]** | Líder de Back-end & Arquitetura | [@Github](https://github.com/rscr-jpg) |
+| **[Heitor D'Albuquerque]** | Product Owner | [@Github](https://github.com/heitortorresdev) |
+| **[Pedro Peixoto]** | QA & Documentação | [@Github](https://github.com/) |
 
-- Design corporativo, moderno, limpo e polido (estilo painel administrativo/SaaS), transmitindo a seriedade da VISAT.
+---
 
-- Cores: Use uma paleta profissional focada na identidade da VISAT (tons de azul institucional, cinza claro para fundos e branco para os cartões de tarefas). Use cores semânticas para os alertas de prazos (vermelho para atrasado/vencendo hoje, amarelo para atenção, verde para no prazo).
+### 🚀 Funcionalidades
 
-- Navegação lateral (Sidebar) expansível contendo os seguintes menus: Dashboard, Demandas (Kanban), Relatórios, Configurações e Sair.
+---
 
-**Telas e Componentes Principais que preciso no protótipo:**
+1. **Cadastro de Solicitações de Inspeção**
+2. **Quadro Visual Interativo**
+3. **Atribuição de Demandas a Inspetores**
+4. **Upload de Relatórios Técnicos**
+5. **Alertas Visuais para Prazos**
+6. **Monitoramento da Carga de Trabalho**
+7. **Cadastro de Órgãos Solicitantes**
+8. **Filtro de Demandas por Órgão**
+9. **Edição de Informações da Demanda**
+10. **Inserção de Pareceres Textuais**
+11. **Registro de Retorno Institucional**
+12. **Busca Rápida por Número de Protocolo**
+13. **Arquivamento de Demandas Inválidas**
+14. **Login e Autenticação de Usuário**
+15. **Log de Auditoria e Histórico**
+16. **Exportação de Relatórios Gerenciais**
 
-1. **Dashboard (Visão Geral da VISAT):**
+---
 
-   - Resumo em tempo real com cards de métricas gerenciais: "Demandas Ativas", "Prazos Próximos do Vencimento" e "Carga de Trabalho por Inspetor".
+## 🛠️ Ferramentas Utilizadas
 
-   - Uma barra de busca rápida no topo para pesquisar diretamente por "Número de Protocolo".
+- **Gestão Ágil / Board:** [Trello]
+- **Design / Prototipação:** [Lovable]
+- **Versionamento:** [Git / GitHub]
 
-2. **Quadro Visual Interativo (Kanban) - O Coração do Sistema:**
+---
 
-   - Colunas do Kanban simulando o fluxo da VISAT: "Recebidas", "Em Análise", "Em Atendimento" e "Concluídas".
+## 📸 Evidências
 
-   - Os cartões (cards) das demandas devem exibir: Número do Protocolo, Órgão Solicitante, Inspetor Responsável da VISAT, e uma tag de Prazo (com alerta visual de cor).
+### 1. Visão Geral do Board (Kanban)
+https://trello.com/invite/b/6a8e24da1ec9edf79652c3e9/ATTIa17ec0dadad27ab9ce3d3248c07f1bad9D3888E0/fds-visat
+<img width="1716" height="769" alt="image" src="https://github.com/user-attachments/assets/b0892f85-4f3b-4260-9518-c41f1acc5db1" />
 
-   - Deve ser possível arrastar e soltar (drag and drop) os cartões entre as colunas para atualizar o status.
 
-   - Filtros no topo do Kanban: Filtrar por "Órgão Solicitante", "Inspetor Responsável" e "Status".
+### 2. Backlog Priorizado
+<img width="1343" height="829" alt="image" src="https://github.com/user-attachments/assets/15ce0ef1-a20b-4573-9452-c0df15cdf193" />
 
-   - Um botão principal destacado: "+ Nova Demanda".
 
-3. **Modal de Cadastro/Edição de Demanda:**
+## 3. 🔀 Fluxo e Diagrama de atividades dos usuários
+  https://www.figma.com/board/XjwKd8ciVyNiVvgoSj8sBp/Sem-t%25C3%25ADtulo?node-id=0-1&p=f&t=Hu4MZhnQXKMuzPST-0
 
-   - Ao clicar em "+ Nova Demanda" ou ao clicar em um card existente, abrir um modal polido contendo:
+## 4. ▶ Protótipo
+https://visat-sentinel-hub.lovable.app
 
-   - Campos de formulário: Órgão Solicitante (Select dropdown), Número do Protocolo, Inspetor Responsável (Select), Prazo (Datepicker).
+## 5. ▶ Vídeo
+https://youtu.be/3X2HAB32n10
+---
 
-   - Área de texto para "Inserção de Pareceres".
-
-   - Área de Upload de Arquivos (para anexar Relatórios Técnicos em PDF/CSV).
-
-   - Botões de ação: "Salvar", "Registrar Retorno Institucional" e "Arquivar Demanda Inválida".
-
-4. **Tela de Relatórios (Auditoria e Exportação):**
-
-   - Uma tabela completa com o log de auditoria e histórico de movimentação das demandas.
-
-   - Filtros por período e status da inspeção.
-
-   - Botões proeminentes para "Exportar Relatório Gerencial (PDF)" e "Exportar (CSV)".
-
-5. **Tela de Configurações / Minha Conta:**
-
-   - Edição de informações do perfil do servidor (Nome, E-mail).
-
-   - Alteração de senha com validação de segurança.
-
-   - Toggles (chaves) para configurar Preferências de Notificações e Alertas.
-
-**Comportamento esperado do Protótipo:**
-
-Não é necessário um backend real complexo, mas a interação deve parecer fluida e natural. Por favor, popule o sistema com dados fictícios (mock data) contextualizados para a VISAT (ex: Inspetores como João, Rafael, Téo; Órgãos como MPT, TRT, Sindicato). Assim, o Kanban e o Dashboard iniciarão preenchidos, permitindo visualizar o produto final operando na prática.
-
-This project was built with [Lovable](https://lovable.dev).
-
-**Live app**: https://visat-sentinel-hub.lovable.app
-
-## Build with Lovable
-
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/d035e613-3d6d-425c-bf1d-e4af72286ae3).
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
-
-## Development
-
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
-
-```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
-npm run dev
-```
+## ⚙️ Como executar o projeto (Em Breve)
