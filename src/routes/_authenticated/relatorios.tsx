@@ -78,10 +78,26 @@ function Relatorios() {
       .sort((a, b) => (a.data < b.data ? 1 : -1));
   }, [demandas, de, ate, status]);
 
-  const exportar = (formato: "PDF" | "CSV") =>
-    toast.success(`Exportação iniciada (${formato})`, {
-      description: `${linhas.length} registros de auditoria incluídos no relatório.`,
-    });
+  const exportar = async (formato: "PDF" | "CSV") => {
+    if (!linhas.length) {
+      toast.error("Nenhum registro para exportar com os filtros atuais.");
+      return;
+    }
+    try {
+      const { exportarCsv, exportarPdf } = await import("@/lib/exportar-relatorio");
+      if (formato === "CSV") exportarCsv(linhas);
+      else
+        await exportarPdf(
+          linhas,
+          `Período ${de || "início"} a ${ate || "hoje"} · Status: ${status}`,
+        );
+      toast.success(`Relatório ${formato} baixado`, {
+        description: `${linhas.length} registros de auditoria incluídos.`,
+      });
+    } catch {
+      toast.error("Não foi possível gerar o relatório.");
+    }
+  };
 
   return (
     <div className="space-y-5 p-4 sm:p-6">
