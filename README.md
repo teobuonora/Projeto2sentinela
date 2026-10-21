@@ -75,58 +75,66 @@ https://visat-sentinel-hub.lovable.app
 https://youtu.be/3X2HAB32n10
 ---
 
-##👥 Prática de Programação em Par (Pair Programming)
+## 👥 Prática de Programação em Par (Pair Programming)
 
-Durante o ciclo de desenvolvimento da **Sprint 01**, a equipe adotou a prática ágil de **Programação em Par (Pair Programming)** para acelerar a curva de aprendizado nas tecnologias utilizadas (TypeScript, TanStack Start e banco de dados relacional), nivelar a qualidade do código e reduzir retrabalhos através de revisão contínua em tempo de desenvolvimento.
+Durante o ciclo de desenvolvimento da **Sprint 01**, a equipe do projeto **Sentinela VISAT** aplicou a prática ágil de **Pair Programming** (Programação em Par) para a implementação das histórias priorizadas do backlog. 
 
-A prática foi estruturada no modelo clássico de **Piloto (Driver)** — responsável pela escrita direta do código e implementação imediata — e **Copiloto (Navigator)** — focado na arquitetura, revisão de regras de negócio, antecipação de bugs e conformidade com os critérios de aceitação.
-
----
-
-### 📋 Resumo das Sessões Realizadas
-
-| Sessão | Dupla de Desenvolvimento | Foco / Histórias Atendidas | Duração |
-| :--- | :--- | :--- | :--- |
-| **Sessão 1** | **Téo Buonora** (Piloto) & **Rubens Souza** (Copiloto) | Persistência no Banco, Tabela `demandas` e Realtime | ~2h 30m |
-| **Sessão 2** | **Lucas Soares** (Piloto) & **Téo Buonora** (Copiloto) | UH4: Upload e Storage de Relatórios Técnicos | ~2h 00m |
-| **Sessão 3** | **João Gabriel** (Piloto) & **Rafael Gurgel** (Copiloto) | UH3 e UH5: Drag-and-Drop do Kanban e Alertas de Prazos | ~2h 15m |
-| **Sessão 4** | **Pedro Peixoto** (Piloto) & **Heitor D'Albuquerque** (Copiloto) | HU16: Exportação Gerencial de Relatórios (PDF/CSV) | ~1h 45m |
+O revezamento entre **Piloto** (*Driver* — responsável pela codificação ativa) e **Copiloto** (*Navigator* — responsável pela revisão contínua, arquitetura, cenários de teste e critérios de aceitação) garantiu alta cobertura de código, redução imediata de falhas e entrega de 100% das histórias planejadas.
 
 ---
 
-### 🔍 Relato Detalhado das Sessões
+### 📋 Resumo das Sessões Realizadas na Sprint 01
 
-#### 1. Persistência de Dados e Políticas de Acesso
-- **Dupla:** **Téo Buonora** (Piloto) e **Rubens Souza** (Copiloto / Arquiteto)
-- **Escopo:** Substituição do estado em memória pela persistência relacional na tabela `demandas`, configuração de canais de sincronização em tempo real (*realtime*) e definição de políticas de controle de acesso (RLS).
-- **Dinâmica:** Enquanto Téo codificava as funções do provedor de dados e as chamadas de mutação, Rubens atuava validando os tipos em TypeScript e garantindo que as permissões e índices estivessem alinhados com a arquitetura definida.
-- **Desafio Superado:** Evitar condições de corrida ao mover cards no Kanban rapidamente antes da resposta do banco; a dupla implementou uma atualização otimista na interface combinada com a sincronização via canal Postgres Changes.
+| Sessão | Dupla de Desenvolvimento | Histórias Atendidas | Foco Técnico | Duração |
+| :--- | :--- | :--- | :--- | :--- |
+| **Sessão 1** | **Téo Buonora** (Piloto) & **Rubens Souza** (Copiloto) | **UH1** e **UH2** | Cadastro da Demanda, Atribuição de Responsável e Persistência | ~2h 30m |
+| **Sessão 2** | **João Gabriel** (Piloto) & **Rafael Gurgel** (Copiloto) | **UH3** | Mover Cards de Status da Inspeção (Kanban Drag & Drop) | ~2h 15m |
+| **Sessão 3** | **Lucas Soares** (Piloto) & **Téo Buonora** (Copiloto) | **UH4** | Anexo de Relatórios Técnicos (Upload e Storage de Arquivos) | ~2h 00m |
+| **Sessão 4** | **Pedro Peixoto** (Piloto) & **Heitor D'Albuquerque** (Copiloto) | **UH5** | Alerta Visual de Prazos Vencendo e Regras de Negócio | ~1h 45m |
 
-#### 2. Implementação de Storage e Upload de Arquivos (UH4)
-- **Dupla:** **Lucas Soares** (Piloto / Front-end) e **Téo Buonora** (Copiloto / Back-end)
-- **Escopo:** Criação do fluxo completo de upload de relatórios técnicos (PDF/CSV até 20MB) integrando o componente de modal com o bucket de armazenamento.
-- **Dinâmica:** Lucas conduziu a montagem dos elementos de interface, validação visual de extensão e barra de progresso. Téo guiou a integração das chamadas de API do cliente, o tratamento de respostas de erro e a vinculação dos metadados do arquivo à demanda salva.
-- **Desafio Superado:** Tratamento do download seguro e da exclusão do arquivo físico caso o usuário cancelasse a adição do anexo antes de salvar a demanda.
+---
 
-#### 3. Interatividade do Kanban e Alertas Visuais (UH3 & UH5)
+### 🔍 Relato Detalhado das Sessões de Pareamento
+
+#### 1. Cadastro de Demanda e Atribuição de Responsável (UH1 & UH2)
+- **Dupla:** **Téo Buonora** (Piloto / Full-Stack) e **Rubens Souza** (Copiloto / Arquiteto & Back-end)
+- **Histórias Atendidas:** 
+  - **UH1: Cadastro de Demanda** (Geração/inserção de protocolo, órgão demandante, assunto e prazo legal).
+  - **UH2: Atribuição de Responsável** (Seleção e vínculo do inspetor técnico responsável no formulário modal).
+- **Dinâmica do Pareamento:** Téo estruturou os componentes do modal (`demanda-modal.tsx`), campos de formulário e a integração com o banco de dados. Rubens atuou verificando o esquema relacional da tabela `demandas`, tipos TypeScript e a reatividade do estado global para que a nova demanda aparecesse instantaneamente na coluna *"Recebidas"*.
+- **Desafio Superado:** Tratamento de validação para impedir protocolos em branco e sincronização em tempo real (*realtime*) para evitar inconsistências caso múltiplos servidores estejam operando o sistema simultaneamente.
+
+#### 2. Movimentação dos Cards no Kanban de Inspeção (UH3)
 - **Dupla:** **João Gabriel** (Piloto / Front-end) e **Rafael Gurgel** (Copiloto / Scrum Master)
-- **Escopo:** Mecânica de arrastar e soltar entre as 4 colunas de status e cálculo semântico das cores dos prazos (vermelho para atrasado/vence hoje, amarelo para até 5 dias e verde para dentro do prazo).
-- **Dinâmica:** João implementou a lógica dos manipuladores de evento HTML5 (`dragStart`, `dragOver`, `drop`). Rafael atuou conferindo a aderência aos critérios de aceitação da história e garantindo que o cálculo de dias úteis e diferenças de datas atendesse às regras da VISAT.
-- **Desafio Superado:** Ajustar o feedback visual no momento em que o card sobrevoa colunas vazias sem que ocorresse flickering na interface.
+- **História Atendida:** 
+  - **UH3: Mover Cards de Status da Inspeção** (Fluxo entre as colunas: *Recebidas*, *Em Análise*, *Em Atendimento* e *Concluídas*).
+- **Dinâmica do Pareamento:** João programou a manipulação nativa de eventos HTML5 Drag-and-Drop (`onDragStart`, `onDragOver`, `onDrop`) e a atualização visual dos cards. Rafael conferiu a conformidade com o fluxo de trabalho da VISAT e validou os estados de transição válidos entre as colunas.
+- **Desafio Superado:** Eliminar o efeito visual de tremulação (*flickering*) quando um card é arrastado sobre colunas sem demandas e garantir que a mutação no banco persista a nova coluna de status imediatamente.
 
-#### 4. Exportação de Relatórios Gerenciais (HU16) & Critérios de PO
-- **Dupla:** **Pedro Peixoto** (Piloto / QA) e **Heitor D'Albuquerque** (Copiloto / Product Owner)
-- **Escopo:** Implementação dos downloads reais de relatórios nos formatos PDF formatado e CSV tabulado com base nos filtros ativos na tela de auditoria.
-- **Dinâmica:** Pedro construiu os geradores de dados e a sanitização dos cabeçalhos das tabelas. Heitor validou se as informações institucionais exigidas pela VISAT (número de protocolo, prazos, inspetor e histórico de pareceres) estavam presentes no layout do documento.
-- **Desafio Superado:** Garantir que o PDF quebrasse páginas de forma legível em listagens com grande volume de movimentações sem cortar linhas de texto.
+#### 3. Anexo e Armazenamento de Relatórios Técnicos (UH4)
+- **Dupla:** **Lucas Soares** (Piloto / UI & Front-end) e **Téo Buonora** (Copiloto / Back-end)
+- **História Atendida:** 
+  - **UH4: Anexo de Relatórios Técnicos** (Área de upload para pareceres, laudos em PDF e planilhas CSV).
+- **Dinâmica do Pareamento:** Lucas construiu a interface da zona de upload com suporte a *drag & drop* de arquivos, validação visual de extensões e limites de tamanho (até 20 MB). Téo orientou a comunicação com o bucket de armazenamento de arquivos no servidor, a geração de links para download seguro e o cancelamento/remoção de anexos.
+- **Desafio Superado:** Garantir que o upload do arquivo físico ocorra de forma assíncrona com tratamento de erros (ex: formato inválido ou arquivo muito grande) sem bloquear a gravação dos dados textuais da demanda.
+
+#### 4. Sinalização e Alerta Visual de Prazos Legais (UH5)
+- **Dupla:** **Pedro Peixoto** (Piloto / QA & Testes) e **Heitor D'Albuquerque** (Copiloto / Product Owner)
+- **História Atendida:** 
+  - **UH5: Alerta Visual de Prazos Vencendo** (Classificação visual automática por semáforo de criticidade).
+- **Dinâmica do Pareamento:** Pedro implementou a função utilitária de cálculo de datas e a aplicação condicional das cores semânticas nas tags dos cartões. Heitor acompanhou a sessão validando cada critério de aceitação de negócio:
+  - 🔴 **Vermelho:** Prazo vencido ou com vencimento no dia corrente (Atrasado / Vence Hoje).
+  - 🟡 **Amarelo:** Prazo com vencimento próximo (1 a 5 dias restantes).
+  - 🟢 **Verde:** Prazo confortável (mais de 5 dias restantes).
+- **Desafio Superado:** Prevenção de discrepâncias de fuso horário (UTC vs horário local de Brasília) no cálculo da diferença de dias, garantindo que demandas com vencimento na data de hoje sejam sempre marcadas com alerta crítico imediato.
 
 ---
 
-### 💡 Lições Aprendidas e Conclusão da Equipe
+### 💡 Lições Aprendidas e Benefícios Observados
 
-1. **Redução Drástica de Bugs:** Erros de tipagem, problemas de sincronização e inconsistências de interface foram detectados no momento exato em que estavam sendo digitados, eliminando ciclos longos de depuração pós-merge.
-2. **Disseminação do Conhecimento:** Integrantes com foco em UI compreenderam a camada de comunicação assíncrona com o backend, enquanto os desenvolvedores de dados entenderam melhor os impactos da renderização reativa nos componentes visuais.
-3. **Comunicação e Alinhamento:** O pareamento entre desenvolvedores e papéis de PO/Scrum Master encurtou o ciclo de feedback das regras de negócio, garantindo que as histórias fossem entregues estritamente conforme o planejado.
+1. **Detecção Imediata de Bugs de Integração:** Erros de tipagem e assincronia foram corrigidos durante a digitação no pair programming, dispensando sessões demoradas de depuração pós-merge.
+2. **Nivelamento Técnico da Equipe:** Os membros voltados a design/front-end aprofundaram conhecimento em persistência e APIs de storage, enquanto os desenvolvedores de back-end aprimoraram a experiência do usuário (UX).
+3. **Aderência aos Critérios de Aceitação:** A participação ativa dos papéis de Scrum Master e Product Owner nas duplas garantiu que todas as histórias (UH1 a UH5) fossem entregues estritamente de acordo com as necessidades operacionais da VISAT.
 
 
 ## 🐛 Rastreamento de Bugs e Defeitos (Issue & Bug Tracker)
