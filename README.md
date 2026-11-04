@@ -265,3 +265,6 @@ Abaixo está o registro detalhado das sessões dedicadas à implementação e re
 1. **Prevenção Imediata de Regressões:** O copiloto atuou como revisor em tempo real, identificando potenciais quebras de tipagem TypeScript e perda de referências em estados reativos antes mesmo da execução de builds.
 2. **Nivelamento de Conhecimento:** Membros com maior familiaridade no backend em nuvem e TanStack Start orientaram os colegas nas operações assíncronas e no consumo de tipos gerados, padronizando as convenções do time.
 3. **Fidelidade aos Critérios de Aceitação:** Cada sessão foi conduzida tendo a respectiva história de usuário como guia estrito, garantindo 100% de conformidade funcional e visual com os requisitos do Sentinela VISAT.
+---
+# Deploy funcional: https://visat-sentinel-hub.lovable.app
+---
