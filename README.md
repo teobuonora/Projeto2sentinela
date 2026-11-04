@@ -191,3 +191,77 @@ https://github.com/user-attachments/assets/cf1d6e0e-90d4-417b-862b-c8a286628c16
 ---
 # Sprint 2
 ---
+## 👥 Relato de Programação em Pares (Pair Programming)
+
+Com o objetivo de elevar a qualidade de código, acelerar a resolução de problemas complexos e disseminar o conhecimento do ecossistema técnico (React 19, TanStack Start, Tailwind v4 e Lovable Cloud), a equipe organizou sessões estruturadas de programação em pares utilizando a dinâmica **Driver/Navigator** (Piloto e Copiloto), alternando os papéis entre os integrantes.
+
+Abaixo está o registro detalhado das sessões dedicadas à implementação e refinamento das histórias de usuário **UH6, UH8, UH9, UH10 e UH15**.
+
+---
+
+### 📊 Quadro Resumo das Sessões
+
+| Sessão | Data | Piloto (*Driver*) | Copiloto (*Navigator*) | Histórias Atendidas | Módulos / Arquivos Principais |
+| :---: | :---: | :--- | :--- | :---: | :--- |
+| **01** | 22/10/2026 | **Téo Buonora** | **Rafael Gurgel** | **UH6** | `src/routes/_authenticated/index.tsx` |
+| **02** | 23/10/2026 | **João Gabriel** | **Téo Buonora** | **UH8** | `src/routes/_authenticated/demandas.tsx` |
+| **03** | 24/10/2026 | **Lucas Soares** | **Heitor D'Albuquerque** | **UH9** e **UH10** | `src/components/demanda-modal.tsx` |
+| **04** | 25/10/2026 | **Pedro Peixoto** | **Rubens Souza** | **UH15** | `src/routes/_authenticated/relatorios.tsx`, `src/lib/sentinela-data.tsx` |
+
+---
+
+### 📝 Detalhamento das Sessões
+
+#### Sessão 01 — Visualização da Carga de Trabalho por Inspetor
+* **História de Usuário:** **UH6** (*Visualização da Carga de Trabalho*)
+* **Dupla:** **Téo Buonora** (Piloto) e **Rafael Gurgel** (Copiloto)
+* **Objetivo:** Construir no painel principal (Dashboard) a agregação em tempo real da distribuição de demandas ativas atribuídas a cada inspetor sanitário da VISAT, com ordenação por sobrecarga e barras visuais de progresso relativo.
+* **Dinâmica do Pareamento:**
+  * **Téo Buonora (Piloto):** Escreveu o cálculo reativo utilizando `useMemo` sobre a lista de demandas ativas (excluindo concluídas), mapeando os inspetores pré-cadastrados (`INSPETORES`), totalizando os processos sob responsabilidade de cada um e integrando os componentes `Progress` do shadcn/ui.
+  * **Rafael Gurgel (Copiloto):** Acompanhou a lógica matemática de normalização percentual (`(total / maxCarga) * 100`) para garantir que mesmo com volumes variáveis a barra nunca ultrapassasse 100% ou gerasse divisão por zero (`Math.max(1, ...)`), além de validar a tipografia tabular (`tabular-nums`) para evitar desalinhamentos nos números.
+* **Desafio Superado:** Evitar que demandas com status "Concluídas" inflacionassem o cômputo da carga de trabalho vigente do inspetor, garantindo que apenas processos pendentes de análise e atendimento computassem como sobrecarga real da equipe.
+* **Arquivos Alterados:** `src/routes/_authenticated/index.tsx`
+
+---
+
+#### Sessão 02 — Filtro do Quadro Kanban por Órgão Demandante
+* **História de Usuário:** **UH8** (*Filtro do Quadro por Órgão Demandante*)
+* **Dupla:** **João Gabriel** (Piloto) e **Téo Buonora** (Copiloto)
+* **Objetivo:** Adicionar no topo do quadro Kanban um seletor dinâmico que permita isolar processos originados por entidades externas específicas (MPT, TRT, Sindicatos, CEREST, Defensoria, MPE), integrando-se aos filtros existentes de inspetor e status.
+* **Dinâmica do Pareamento:**
+  * **João Gabriel (Piloto):** Codificou o componente auxiliar `FiltroSelect`, gerenciou o estado `orgao` na rota `/demandas` e construiu o predicado booleano `(orgao === "todos" || d.orgao === orgao)` dentro da cadeia de filtros memoizada.
+  * **Téo Buonora (Copiloto):** Conduziu os testes de interface visualizando a reatividade dos cards nas 4 colunas simultaneamente. Sugeriu a inclusão de um botão condicional "Limpar filtros" que surge apenas quando algum filtro está ativo, restaurando o quadro Kanban ao estado padrão com um único clique.
+* **Desafio Superado:** Garantir que o arrastar e soltar (Drag and Drop) de cards permanecesse plenamente operacional mesmo quando a visualização estivesse sob um filtro ativo por órgão, impedindo que o card sumisse do quadro sem persistir a alteração no banco.
+* **Arquivos Alterados:** `src/routes/_authenticated/demandas.tsx`
+
+---
+
+#### Sessão 03 — Edição de Informações da Demanda e Parecer Técnico Rápido
+* **Histórias de Usuário:** **UH9** (*Edição de Informações da Demanda*) e **UH10** (*Inserção de Parecer Textual Rápido*)
+* **Dupla:** **Lucas Soares** (Piloto) e **Heitor D'Albuquerque** (Copiloto)
+* **Objetivo:** Permitir que o servidor clique em qualquer card do Kanban para abrir o modal pré-preenchido com os dados atuais da demanda, editar campos cadastrais e registrar o parecer técnico da inspeção sanitária com persistência na base de dados.
+* **Dinâmica do Pareamento:**
+  * **Lucas Soares (Piloto):** Implementou o hook de sincronização `useEffect` no `DemandaModal` para preencher o formulário ao receber a prop `demanda`, configurou o campo `Textarea` dedicado à inserção de pareceres e amarrou a chamada `salvar()` ao método `atualizar()` do contexto global do Sentinela.
+  * **Heitor D'Albuquerque (Copiloto):** Atuou na validação dos campos obrigatórios (protocolo e data de prazo legal), garantiu que a edição preservasse os anexos e o histórico de auditoria já acumulados e revisou os toasts de feedback para sinalizar sucesso ou falha imediata na atualização.
+* **Desafio Superado:** Evitar a perda de dados prévios de histórico e anexos ao enviar o payload atualizado da demanda para o banco de dados via upsert.
+* **Arquivos Alterados:** `src/components/demanda-modal.tsx`, `src/lib/sentinela-data.tsx`
+
+---
+
+#### Sessão 04 — Histórico de Ações e Log de Auditoria
+* **História de Usuário:** **UH15** (*Histórico de Ações - Log de Auditoria*)
+* **Dupla:** **Pedro Peixoto** (Piloto) e **Rubens Souza** (Copiloto)
+* **Objetivo:** Estruturar a trilha de auditoria rastreando todas as movimentações e atualizações do ciclo de vida das demandas, exibindo uma linha do tempo detalhada no modal e uma central de relatórios com filtros por período e status.
+* **Dinâmica do Pareamento:**
+  * **Pedro Peixoto (Piloto):** Criou a tabela de auditoria em `src/routes/_authenticated/relatorios.tsx`, mapeando e achatando a coluna JSONB `historico` de todas as demandas em linhas cronológicas decrescentes compostas por Data/Hora, Protocolo, Órgão, Inspetor, Autor e Descrição da Ação.
+  * **Rubens Souza (Copiloto):** Validou o tratamento defensivo de datas no formato ISO, a ordenação decrescente dos eventos e a renderização do bloco "Histórico de movimentações" dentro do próprio modal da demanda, assegurando que toda ação (criação, edição, transição de status ou parecer) seja registrada com autoria e data.
+* **Desafio Superado:** Converter os arrays aninhados de eventos históricos de cada demanda em um conjunto plano (*flat list*) reativo, possibilitando buscas textuais e filtragens instantâneas sem degradar o tempo de renderização.
+* **Arquivos Alterados:** `src/routes/_authenticated/relatorios.tsx`, `src/components/demanda-modal.tsx`, `src/lib/sentinela-data.tsx`
+
+---
+
+### 💡 Lições Aprendidas e Benefícios Observados
+
+1. **Prevenção Imediata de Regressões:** O copiloto atuou como revisor em tempo real, identificando potenciais quebras de tipagem TypeScript e perda de referências em estados reativos antes mesmo da execução de builds.
+2. **Nivelamento de Conhecimento:** Membros com maior familiaridade no backend em nuvem e TanStack Start orientaram os colegas nas operações assíncronas e no consumo de tipos gerados, padronizando as convenções do time.
+3. **Fidelidade aos Critérios de Aceitação:** Cada sessão foi conduzida tendo a respectiva história de usuário como guia estrito, garantindo 100% de conformidade funcional e visual com os requisitos do Sentinela VISAT.
