@@ -272,3 +272,8 @@ Abaixo está o registro detalhado das sessões dedicadas à implementação e re
 
 https://trello.com/invite/b/6a8e24da1ec9edf79652c3e9/ATTIa17ec0dadad27ab9ce3d3248c07f1bad9D3888E0/fds-visat
 <img width="1813" height="824" alt="image" src="https://github.com/user-attachments/assets/f4a5dd6c-a366-49cc-95e0-50af89f4cb36" />
+
+---
+
+## 🐛 Rastreamento de Bugs e Defeitos (Issue & Bug Tracker)
+<img width="1336" height="711" alt="image" src="https://github.com/user-attachments/assets/6350c471-a4f4-4774-aa9a-cb4e0441de5a" />
