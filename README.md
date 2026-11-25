@@ -53,7 +53,79 @@ A ferramenta centraliza o recebimento de demandas de órgãos de controle e arti
 - **Versionamento:** [Git / GitHub]
 
 ---
+```markdown
+## ⚙️ Como Executar o Projeto Localmente
 
+Siga o passo a passo abaixo para clonar o repositório e executar a aplicação em seu ambiente de desenvolvimento.
+
+### 📋 Pré-requisitos
+Antes de começar, certifique-se de ter instalado em sua máquina:
+- [Git](https://git-scm.com/)
+- [Node.js](https://nodejs.org/) (versão 18 ou superior) ou [Bun](https://bun.sh/) (recomendado)
+- Navegador moderno (Google Chrome, Firefox, Edge ou Safari)
+
+---
+
+### 🚀 Passo a Passo
+
+#### 1. Clonar o repositório
+Abra o terminal e execute:
+```bash
+git clone https://github.com/teobuonora/fds-visat.git
+cd fds-visat
+```
+
+#### 2. Instalar as dependências
+Utilize o gerenciador de pacotes de sua preferência:
+
+*Com Bun (recomendado):*
+```bash
+bun install
+```
+
+*Ou com npm:*
+```bash
+npm install
+```
+
+#### 3. Configuração de Variáveis de Ambiente
+O projeto já conta com o arquivo `.env` versionado contendo as chaves públicas necessárias para comunicação com os serviços de banco de dados, storage e autenticação do backend em nuvem (Lovable Cloud).
+
+> ⚠️ **Importante:** Não remova nem altere as variáveis `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY` presentes no arquivo `.env`, pois elas inicializam o cliente do frontend.
+
+#### 4. Iniciar o servidor de desenvolvimento
+Execute o comando correspondente:
+
+*Com Bun:*
+```bash
+bun dev
+```
+
+*Com npm:*
+```bash
+npm run dev
+```
+
+#### 5. Acessar a aplicação
+Após a inicialização do Vite, acesse no navegador o endereço indicado no terminal (normalmente [http://localhost:8080](http://localhost:8080)).
+
+---
+
+### 🛠️ Scripts Disponíveis no Projeto
+
+| Comando | Finalidade |
+| :--- | :--- |
+| `bun dev` / `npm run dev` | Inicia o servidor local com Hot Module Replacement (HMR) |
+| `bun run build` / `npm run build` | Compila o bundle otimizado de produção |
+| `bun run preview` / `npm run preview` | Executa localmente o build estático para testes finais |
+| `bun run lint` / `npm run lint` | Executa a verificação estática do código com ESLint |
+
+---
+
+### 🌐 Acesso Direto (Ambiente Publicado)
+Caso prefira testar a aplicação sem instalar nada localmente, o ambiente oficial em produção está disponível em:  
+👉 **[visat-sentinel-hub.lovable.app](https://visat-sentinel-hub.lovable.app)**
+---
 ## 📸 Evidências
 
 ## 1. Visão Geral do Board (Kanban)
