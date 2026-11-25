@@ -1,6 +1,6 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { AlertTriangle, ArrowUpRight, CalendarClock, CheckCircle2, FolderOpen, Search, X } from "lucide-react";
+import { AlertTriangle, ArrowUpRight, CalendarClock, CheckCircle2, Eye, FolderOpen, Search, X } from "lucide-react";
 
 import { DemandaModal } from "@/components/demanda-modal";
 import { Badge } from "@/components/ui/badge";
@@ -110,36 +110,43 @@ function Dashboard() {
                       setSelecionada(d);
                       setModalAberta(true);
                     }}
-                    className="min-w-0 flex-1 text-left"
+                    aria-label={`Ver detalhes da demanda ${d.protocolo}`}
+                    className="flex min-w-0 flex-1 flex-wrap items-center justify-between gap-3 text-left"
                   >
-                    <p className="font-medium tabular-nums">{d.protocolo}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {d.orgao} · {d.assunto}
-                    </p>
+                    <span className="min-w-0 flex-1">
+                      <p className="font-medium tabular-nums">{d.protocolo}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {d.orgao} · {d.assunto}
+                      </p>
+                    </span>
+                    <span className="flex shrink-0 items-center gap-2">
+                      <Badge variant="outline">
+                        {STATUS_LIST.find((s) => s.id === d.status)?.label}
+                      </Badge>
+                      <Badge
+                        variant="outline"
+                        className={
+                          d.status === "concluidas"
+                            ? "bg-success-soft text-success border-success/25"
+                            : SEVERIDADE_CLASS[severidade(d.prazo)]
+                        }
+                      >
+                        {d.status === "concluidas" && d.data_encerramento
+                          ? `Respondida · ${formatarData(d.data_encerramento)}`
+                          : formatarData(d.prazo)}
+                      </Badge>
+                      <span className="flex items-center gap-1 text-xs font-medium text-primary">
+                        <Eye className="size-3.5" />
+                        Ver detalhes
+                      </span>
+                    </span>
                   </button>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline">
-                      {STATUS_LIST.find((s) => s.id === d.status)?.label}
-                    </Badge>
-                    <Badge
-                      variant="outline"
-                      className={
-                        d.status === "concluidas"
-                          ? "bg-success-soft text-success border-success/25"
-                          : SEVERIDADE_CLASS[severidade(d.prazo)]
-                      }
-                    >
-                      {d.status === "concluidas" && d.data_encerramento
-                        ? `Respondida · ${formatarData(d.data_encerramento)}`
-                        : formatarData(d.prazo)}
-                    </Badge>
-                    <Button variant="ghost" size="sm" asChild>
-                      <Link to="/demandas" search={{ protocolo: d.protocolo }}>
-                        Ver card
-                        <ArrowUpRight className="size-3.5" />
-                      </Link>
-                    </Button>
-                  </div>
+                  <Button variant="ghost" size="sm" asChild className="shrink-0">
+                    <Link to="/demandas" search={{ protocolo: d.protocolo }}>
+                      Ver card
+                      <ArrowUpRight className="size-3.5" />
+                    </Link>
+                  </Button>
                 </div>
               ))}
             </div>
