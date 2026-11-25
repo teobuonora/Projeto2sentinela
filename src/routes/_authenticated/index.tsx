@@ -13,9 +13,9 @@ import {
   INSPETORES,
   SEVERIDADE_CLASS,
   SEVERIDADE_LABEL,
-  STATUS_LIST,
   diasRestantes,
   formatarData,
+  labelStatus,
   severidade,
   useSentinela,
   type Demanda,
@@ -46,7 +46,7 @@ function Dashboard() {
   const [selecionada, setSelecionada] = useState<Demanda | null>(null);
   const [modalAberta, setModalAberta] = useState(false);
 
-  const ativas = demandas.filter((d) => d.status !== "concluidas");
+  const ativas = demandas.filter((d) => d.status !== "concluidas" && d.status !== "arquivada");
   const criticas = ativas.filter((d) => diasRestantes(d.prazo) <= 5);
   const concluidas = demandas.filter((d) => d.status === "concluidas");
 
@@ -121,19 +121,23 @@ function Dashboard() {
                     </span>
                     <span className="flex shrink-0 items-center gap-2">
                       <Badge variant="outline">
-                        {STATUS_LIST.find((s) => s.id === d.status)?.label}
+                        {labelStatus(d.status)}
                       </Badge>
                       <Badge
                         variant="outline"
                         className={
                           d.status === "concluidas"
                             ? "bg-success-soft text-success border-success/25"
-                            : SEVERIDADE_CLASS[severidade(d.prazo)]
+                            : d.status === "arquivada"
+                              ? "bg-danger-soft text-danger border-danger/25"
+                              : SEVERIDADE_CLASS[severidade(d.prazo)]
                         }
                       >
                         {d.status === "concluidas" && d.data_encerramento
                           ? `Respondida · ${formatarData(d.data_encerramento)}`
-                          : formatarData(d.prazo)}
+                          : d.status === "arquivada"
+                            ? "Arquivado"
+                            : formatarData(d.prazo)}
                       </Badge>
                       <span className="flex items-center gap-1 text-xs font-medium text-primary">
                         <Eye className="size-3.5" />
@@ -141,12 +145,14 @@ function Dashboard() {
                       </span>
                     </span>
                   </button>
-                  <Button variant="ghost" size="sm" asChild className="shrink-0">
-                    <Link to="/demandas" search={{ protocolo: d.protocolo }}>
-                      Ver card
-                      <ArrowUpRight className="size-3.5" />
-                    </Link>
-                  </Button>
+                  {d.status !== "arquivada" && (
+                    <Button variant="ghost" size="sm" asChild className="shrink-0">
+                      <Link to="/demandas" search={{ protocolo: d.protocolo }}>
+                        Ver card
+                        <ArrowUpRight className="size-3.5" />
+                      </Link>
+                    </Button>
+                  )}
                 </div>
               ))}
             </div>

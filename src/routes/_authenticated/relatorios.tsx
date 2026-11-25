@@ -26,8 +26,9 @@ import {
 import {
   SEVERIDADE_CLASS,
   SEVERIDADE_LABEL,
-  STATUS_LIST,
+  STATUS_TODOS,
   formatarData,
+  labelStatus,
   severidade,
   useSentinela,
 } from "@/lib/sentinela-data";
@@ -138,7 +139,7 @@ function Relatorios() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="todos">Todos os status</SelectItem>
-                {STATUS_LIST.map((s) => (
+                {STATUS_TODOS.map((s) => (
                   <SelectItem key={s.id} value={s.id}>
                     {s.label}
                   </SelectItem>
@@ -188,8 +189,15 @@ function Relatorios() {
                   <TableCell className="text-muted-foreground">{l.acao}</TableCell>
                   <TableCell>{l.autor}</TableCell>
                   <TableCell>
-                    <Badge variant="outline" className={SEVERIDADE_CLASS[severidade(l.prazo)]}>
-                      {SEVERIDADE_LABEL[severidade(l.prazo)]}
+                    <Badge
+                      variant="outline"
+                      className={
+                        l.status === "arquivada"
+                          ? "bg-danger-soft text-danger border-danger/25"
+                          : SEVERIDADE_CLASS[severidade(l.prazo)]
+                      }
+                    >
+                      {l.status === "arquivada" ? labelStatus(l.status) : SEVERIDADE_LABEL[severidade(l.prazo)]}
                     </Badge>
                   </TableCell>
                 </TableRow>

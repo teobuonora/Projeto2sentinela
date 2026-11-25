@@ -14,6 +14,7 @@ import {
   SelectTrigger,
 } from "@/components/ui/select";
 import { filtrarDemandasPorProtocolo } from "@/lib/busca-protocolo";
+import { filtrarDemandasQuadroPrincipal } from "@/lib/arquivamento-demanda";
 import {
   INSPETORES,
   SEVERIDADE_CLASS,
@@ -76,15 +77,17 @@ function Kanban() {
 
   const temBuscaProtocolo = buscaProtocolo.trim().length > 0;
 
+  const demandasQuadro = useMemo(() => filtrarDemandasQuadroPrincipal(demandas), [demandas]);
+
   const filtradas = useMemo(
     () =>
-      filtrarDemandasPorProtocolo(demandas, buscaProtocolo).filter(
+      filtrarDemandasPorProtocolo(demandasQuadro, buscaProtocolo).filter(
         (d) =>
           (orgao === "todos" || d.orgao === orgao) &&
           (inspetor === "todos" || d.inspetor === inspetor) &&
           (status === "todos" || d.status === status),
       ),
-    [demandas, buscaProtocolo, orgao, inspetor, status],
+    [demandasQuadro, buscaProtocolo, orgao, inspetor, status],
   );
 
   const abrir = (d: Demanda | null) => {

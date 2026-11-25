@@ -27,7 +27,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import {
   INSPETORES,
-  STATUS_LIST,
+  STATUS_TODOS,
   formatarData,
   useSentinela,
   type Demanda,
@@ -56,7 +56,7 @@ const vazia = (id: string): Demanda => ({
 });
 
 export function DemandaModal({ open, onOpenChange, demanda }: Props) {
-  const { upsert, registrarRetorno, remover, novoId, usuarioAtual } = useSentinela();
+  const { upsert, registrarRetorno, arquivar, novoId, usuarioAtual } = useSentinela();
   const { data: orgaos = [], isPending: carregandoOrgaos, isError: erroOrgaos } = useOrgaos();
   const [form, setForm] = useState<Demanda>(vazia("novo"));
   const [enviando, setEnviando] = useState(false);
@@ -93,6 +93,7 @@ export function DemandaModal({ open, onOpenChange, demanda }: Props) {
   };
 
   const jaRespondida = form.status === "concluidas" && Boolean(form.data_encerramento);
+  const jaArquivada = form.status === "arquivada";
 
   const marcarRespondida = () => {
     if (!form.protocolo || !form.orgao || !form.inspetor) {
@@ -102,6 +103,15 @@ export function DemandaModal({ open, onOpenChange, demanda }: Props) {
     const encerrada = registrarRetorno(form);
     toast.success("Demanda marcada como Respondida", {
       description: `Retorno institucional registrado para ${encerrada.orgao} em ${formatarData(encerrada.data_encerramento!)}.`,
+    });
+    onOpenChange(false);
+  };
+
+  const arquivarInvalida = () => {
+    if (!demanda || jaArquivada) return;
+    const arquivada = arquivar(form);
+    toast.warning("Demanda arquivada como inválida", {
+      description: `Protocolo ${arquivada.protocolo} removido do quadro principal e mantido no histórico.`,
     });
     onOpenChange(false);
   };
@@ -124,6 +134,13 @@ export function DemandaModal({ open, onOpenChange, demanda }: Props) {
             <span>
               Demanda formalmente respondida · Data de encerramento: {formatarData(form.data_encerramento)}
             </span>
+          </div>
+        )}
+
+        {jaArquivada && (
+          <div className="flex items-center gap-2 rounded-lg border border-danger/30 bg-danger-soft px-3 py-2 text-sm font-medium text-danger">
+            <Archive className="size-4 shrink-0" />
+            <span>Demanda arquivada como inválida · Registro preservado apenas para auditoria.</span>
           </div>
         )}
 
@@ -191,7 +208,7 @@ export function DemandaModal({ open, onOpenChange, demanda }: Props) {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {STATUS_LIST.map((s) => (
+                {STATUS_TODOS.map((s) => (
                   <SelectItem key={s.id} value={s.id}>
                     {s.label}
                   </SelectItem>
@@ -329,24 +346,23 @@ export function DemandaModal({ open, onOpenChange, demanda }: Props) {
           <div className="flex flex-wrap gap-2">
             <Button
               variant="outline"
-              disabled={jaRespondida}
+              disabled={jaRespondida || jaArquivada}
               onClick={marcarRespondida}
             >
               {jaRespondida ? <CheckCircle2 className="size-4" /> : <Send className="size-4" />}
               {jaRespondida ? "Respondida" : "Marcar como Respondida"}
             </Button>
-            <Button
-              variant="ghost"
-              className="text-danger hover:bg-danger-soft hover:text-danger"
-              onClick={() => {
-                if (demanda) remover(demanda.id);
-                toast.warning("Demanda arquivada como inválida");
-                onOpenChange(false);
-              }}
-            >
-              <Archive className="size-4" />
-              Arquivar demanda inválida
-            </Button>
+            {demanda && (
+              <Button
+                variant="ghost"
+                disabled={jaArquivada}
+                className="text-danger hover:bg-danger-soft hover:text-danger"
+                onClick={arquivarInvalida}
+              >
+                <Archive className="size-4" />
+                {jaArquivada ? "Arquivada" : "Arquivar demanda inválida"}
+              </Button>
+            )}
           </div>
           <Button onClick={salvar}>Salvar</Button>
         </DialogFooter>
