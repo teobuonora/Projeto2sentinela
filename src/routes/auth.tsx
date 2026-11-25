@@ -8,9 +8,11 @@ import logo from "@/assets/sentinela-logo.png.asset.json";
 import {
   MENSAGEM_CONTA_NAO_AUTORIZADA,
   MENSAGEM_GOOGLE_NAO_CADASTRADO,
+  TAMANHO_MINIMO_SENHA,
   sanitizarDestinoPosLogin,
   usuarioPossuiPapelAutorizado,
   validarCredenciaisLogin,
+  validarNovaSenha,
   type MotivoBloqueioAcesso,
 } from "@/lib/autenticacao-usuario";
 import { Button } from "@/components/ui/button";
@@ -58,6 +60,7 @@ function AuthPage() {
   const [erroLogin, setErroLogin] = useState<string | null>(
     bloqueadoSemAutorizacao ? MENSAGEM_CONTA_NAO_AUTORIZADA : null,
   );
+  const [erroCadastro, setErroCadastro] = useState<string | null>(null);
   const [modo, setModo] = useState<"entrar" | "registrar" | "esqueci">("entrar");
 
   async function verificarAutorizacao(userId: string): Promise<boolean> {
@@ -127,10 +130,16 @@ function AuthPage() {
 
   async function registrar(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    setErroCadastro(null);
     const f = new FormData(e.currentTarget);
-    const senha = String(f.get("senha"));
-    if (senha.length < 8) { toast.error("A senha deve ter ao menos 8 caracteres."); return; }
-    if (senha !== String(f.get("confirmar"))) { toast.error("As senhas não coincidem."); return; }
+    const senha = String(f.get("senha") ?? "");
+    const confirmar = String(f.get("confirmar") ?? "");
+    const validacaoSenha = validarNovaSenha(senha, confirmar);
+    if (!validacaoSenha.valido) {
+      setErroCadastro(validacaoSenha.erro);
+      toast.error(validacaoSenha.erro);
+      return;
+    }
     setLoading(true);
     const { data, error } = await supabase.auth.signUp({
       email: String(f.get("email")),
@@ -138,7 +147,11 @@ function AuthPage() {
       options: { emailRedirectTo: window.location.origin, data: { full_name: String(f.get("nome")) } },
     });
     setLoading(false);
-    if (error) { toast.error("Não foi possível criar a conta", { description: error.message }); return; }
+    if (error) {
+      setErroCadastro(error.message);
+      toast.error("Não foi possível criar a conta", { description: error.message });
+      return;
+    }
     if (data.session) {
       await supabase.auth.signOut();
     }
@@ -201,7 +214,13 @@ function AuthPage() {
             <Button type="button" variant="ghost" className="w-full" onClick={() => setModo("entrar")}>Voltar</Button>
           </form>
         ) : (
-          <Tabs value={modo} onValueChange={(v) => setModo(v as "entrar" | "registrar")}>
+          <Tabs
+            value={modo}
+            onValueChange={(v) => {
+              setErroCadastro(null);
+              setModo(v as "entrar" | "registrar");
+            }}
+          >
             <TabsList className="mb-4 grid w-full grid-cols-2">
               <TabsTrigger value="entrar">Entrar</TabsTrigger>
               <TabsTrigger value="registrar">Criar conta</TabsTrigger>
@@ -253,6 +272,15 @@ function AuthPage() {
             </TabsContent>
             <TabsContent value="registrar">
               <form onSubmit={registrar} className="space-y-4">
+                {erroCadastro && (
+                  <div
+                    role="alert"
+                    className="flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-destructive"
+                  >
+                    <AlertCircle className="mt-0.5 size-4 shrink-0" />
+                    <span>{erroCadastro}</span>
+                  </div>
+                )}
                 <div className="space-y-2">
                   <Label htmlFor="nome">Nome completo</Label>
                   <Input id="nome" name="nome" required />
@@ -264,6 +292,9 @@ function AuthPage() {
                 <div className="space-y-2">
                   <Label htmlFor="senha-c">Senha</Label>
                   <Input id="senha-c" name="senha" type="password" autoComplete="new-password" required />
+                  <p className="text-xs text-muted-foreground">
+                    Mínimo de {TAMANHO_MINIMO_SENHA} caracteres.
+                  </p>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="confirmar">Confirmar senha</Label>

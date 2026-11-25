@@ -9,6 +9,10 @@ export const MENSAGEM_CONTA_NAO_AUTORIZADA =
 export const MENSAGEM_GOOGLE_NAO_CADASTRADO =
   "Apenas contas previamente cadastradas e autorizadas podem entrar com Google. Para solicitar acesso, utilize a aba Criar conta.";
 
+export const TAMANHO_MINIMO_SENHA = 8;
+
+export const MENSAGEM_SENHA_MINIMA = `A senha deve ter no mínimo ${TAMANHO_MINIMO_SENHA} caracteres.`;
+
 export interface UsuarioAutenticadoBasico {
   id: string;
   email?: string | null;
@@ -20,6 +24,10 @@ export type ResultadoAcessoRota<T extends UsuarioAutenticadoBasico> =
 
 export type ResultadoValidacaoCredenciais =
   | { valido: true; email: string; senha: string }
+  | { valido: false; erro: string };
+
+export type ResultadoValidacaoSenha =
+  | { valido: true }
   | { valido: false; erro: string };
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -79,4 +87,14 @@ export function validarCredenciaisLogin(email: string, senha: string): Resultado
     return { valido: false, erro: "Informe sua senha para entrar." };
   }
   return { valido: true, email: emailNormalizado, senha };
+}
+
+export function validarNovaSenha(senha: string, confirmarSenha?: string): ResultadoValidacaoSenha {
+  if (senha.length < TAMANHO_MINIMO_SENHA) {
+    return { valido: false, erro: MENSAGEM_SENHA_MINIMA };
+  }
+  if (confirmarSenha !== undefined && senha !== confirmarSenha) {
+    return { valido: false, erro: "As senhas não coincidem." };
+  }
+  return { valido: true };
 }

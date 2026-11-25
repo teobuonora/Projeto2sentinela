@@ -2,9 +2,11 @@ import { describe, it as test } from "node:test";
 import assert from "node:assert/strict";
 import {
   avaliarAcessoRotaProtegida,
+  MENSAGEM_SENHA_MINIMA,
   sanitizarDestinoPosLogin,
   usuarioPossuiPapelAutorizado,
   validarCredenciaisLogin,
+  validarNovaSenha,
 } from "./autenticacao-usuario";
 
 describe("UH14 — autenticação de usuário (login)", () => {
@@ -64,5 +66,22 @@ describe("UH14 — autenticação de usuário (login)", () => {
     assert.equal(sanitizarDestinoPosLogin("//externo.com"), "/");
     assert.equal(sanitizarDestinoPosLogin("/auth"), "/");
     assert.equal(sanitizarDestinoPosLogin("/demandas"), "/demandas");
+  });
+
+  test("exige no mínimo 8 caracteres na senha sem obrigar maiúsculas, números ou símbolos", () => {
+    const curta = validarNovaSenha("abc1234", "abc1234");
+    assert.equal(curta.valido, false);
+    if (!curta.valido) {
+      assert.equal(curta.erro, MENSAGEM_SENHA_MINIMA);
+    }
+
+    const simples = validarNovaSenha("abcdefgh", "abcdefgh");
+    assert.equal(simples.valido, true);
+
+    const divergente = validarNovaSenha("abcdefgh", "abcdefgi");
+    assert.equal(divergente.valido, false);
+    if (!divergente.valido) {
+      assert.equal(divergente.erro, "As senhas não coincidem.");
+    }
   });
 });

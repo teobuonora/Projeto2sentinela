@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { TAMANHO_MINIMO_SENHA, validarNovaSenha } from "@/lib/autenticacao-usuario";
 
 export const Route = createFileRoute("/reset-password")({
   head: () => ({
@@ -25,9 +26,9 @@ function ResetPassword() {
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const f = new FormData(e.currentTarget);
-    const senha = String(f.get("senha"));
-    if (senha.length < 8) { toast.error("A senha deve ter ao menos 8 caracteres."); return; }
-    if (senha !== String(f.get("confirmar"))) { toast.error("As senhas não coincidem."); return; }
+    const senha = String(f.get("senha") ?? "");
+    const validacaoSenha = validarNovaSenha(senha, String(f.get("confirmar") ?? ""));
+    if (!validacaoSenha.valido) { toast.error(validacaoSenha.erro); return; }
     setLoading(true);
     const { error } = await supabase.auth.updateUser({ password: senha });
     setLoading(false);
@@ -43,6 +44,7 @@ function ResetPassword() {
         <div className="space-y-2">
           <Label htmlFor="senha">Nova senha</Label>
           <Input id="senha" name="senha" type="password" autoComplete="new-password" required />
+          <p className="text-xs text-muted-foreground">Mínimo de {TAMANHO_MINIMO_SENHA} caracteres.</p>
         </div>
         <div className="space-y-2">
           <Label htmlFor="confirmar">Confirmar senha</Label>
