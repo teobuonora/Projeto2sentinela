@@ -1,16 +1,26 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { AppSidebar } from "@/components/app-sidebar";
+import { avaliarAcessoRotaProtegida } from "@/lib/autenticacao-usuario";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { SentinelaProvider } from "@/lib/sentinela-data";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
-  beforeLoad: async () => {
+  beforeLoad: async ({ location }) => {
     const { data, error } = await supabase.auth.getUser();
-    if (error || !data.user) throw redirect({ to: "/auth" });
-    return { user: data.user };
+    const decisao = avaliarAcessoRotaProtegida(error ? null : data.user, location.href);
+    if (!decisao.permitido) {
+      throw redirect({
+        to: "/auth",
+        search: {
+          redirect: decisao.destinoOriginal,
+          motivo: "autenticacao-necessaria",
+        },
+      });
+    }
+    return { user: decisao.usuario };
   },
   component: AppShell,
 });

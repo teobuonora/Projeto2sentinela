@@ -1,15 +1,32 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { Lock, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import logo from "@/assets/sentinela-logo.png.asset.json";
+import { sanitizarDestinoPosLogin, validarCredenciaisLogin } from "@/lib/autenticacao-usuario";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
+interface AuthSearch {
+  redirect?: string;
+  motivo?: string;
+}
+
 export const Route = createFileRoute("/auth")({
+  validateSearch: (search: Record<string, unknown>): AuthSearch => {
+    const resultado: AuthSearch = {};
+    if (typeof search["redirect"] === "string" && search["redirect"].trim()) {
+      resultado.redirect = sanitizarDestinoPosLogin(search["redirect"]);
+    }
+    if (search["motivo"] === "autenticacao-necessaria") {
+      resultado.motivo = "autenticacao-necessaria";
+    }
+    return resultado;
+  },
   head: () => ({
     meta: [
       { title: "Entrar · Sentinela VISAT" },
@@ -23,29 +40,42 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const navigate = useNavigate();
+  const search = Route.useSearch();
+  const destinoPosLogin = sanitizarDestinoPosLogin(search.redirect);
+  const bloqueadoSemLogin = search.motivo === "autenticacao-necessaria";
   const [loading, setLoading] = useState(false);
+  const [erroLogin, setErroLogin] = useState<string | null>(null);
   const [modo, setModo] = useState<"entrar" | "registrar" | "esqueci">("entrar");
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
-      if (data.user) navigate({ to: "/", replace: true });
+      if (data.user) navigate({ href: destinoPosLogin, replace: true });
     });
     const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === "SIGNED_IN" && session) navigate({ to: "/", replace: true });
+      if (event === "SIGNED_IN" && session) navigate({ href: destinoPosLogin, replace: true });
     });
     return () => sub.subscription.unsubscribe();
-  }, [navigate]);
+  }, [navigate, destinoPosLogin]);
 
   async function entrar(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    setErroLogin(null);
     const f = new FormData(e.currentTarget);
+    const validacao = validarCredenciaisLogin(String(f.get("email") ?? ""), String(f.get("senha") ?? ""));
+    if (!validacao.valido) {
+      setErroLogin(validacao.erro);
+      return;
+    }
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({
-      email: String(f.get("email")),
-      password: String(f.get("senha")),
+      email: validacao.email,
+      password: validacao.senha,
     });
     setLoading(false);
-    if (error) toast.error("Não foi possível entrar", { description: "E-mail ou senha incorretos, ou e-mail não confirmado." });
+    if (error) {
+      setErroLogin("E-mail ou senha incorretos, ou e-mail ainda não confirmado.");
+      toast.error("Não foi possível entrar", { description: "Verifique suas credenciais e tente novamente." });
+    }
   }
 
   async function registrar(e: React.FormEvent<HTMLFormElement>) {
@@ -94,6 +124,16 @@ function AuthPage() {
           <p className="text-sm text-muted-foreground">Vigilância em Saúde do Trabalhador · VISAT</p>
         </div>
 
+        {bloqueadoSemLogin && (
+          <div
+            role="status"
+            className="mb-5 flex items-start gap-2.5 rounded-lg border border-primary/25 bg-primary/5 px-3.5 py-2.5 text-xs text-foreground"
+          >
+            <Lock className="mt-0.5 size-4 shrink-0 text-primary" />
+            <span>Acesso restrito a profissionais autorizados da VISAT. Faça login com seu e-mail e senha para continuar.</span>
+          </div>
+        )}
+
         {modo === "esqueci" ? (
           <form onSubmit={esqueci} className="space-y-4">
             <p className="text-sm text-muted-foreground">Informe seu e-mail para receber o link de redefinição.</p>
@@ -112,6 +152,15 @@ function AuthPage() {
             </TabsList>
             <TabsContent value="entrar">
               <form onSubmit={entrar} className="space-y-4">
+                {erroLogin && (
+                  <div
+                    role="alert"
+                    className="flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-destructive"
+                  >
+                    <AlertCircle className="mt-0.5 size-4 shrink-0" />
+                    <span>{erroLogin}</span>
+                  </div>
+                )}
                 <div className="space-y-2">
                   <Label htmlFor="email">E-mail</Label>
                   <Input id="email" name="email" type="email" autoComplete="email" required />
