@@ -14,7 +14,6 @@ import {
 } from "@/components/ui/select";
 import {
   INSPETORES,
-  ORGAOS,
   SEVERIDADE_CLASS,
   SEVERIDADE_LABEL,
   STATUS_LIST,
@@ -24,8 +23,10 @@ import {
   type Demanda,
   type Status,
 } from "@/lib/sentinela-data";
+import { orgaosQueryOptions, useOrgaos } from "@/lib/orgaos";
 
 export const Route = createFileRoute("/_authenticated/demandas")({
+  loader: ({ context }) => context.queryClient.ensureQueryData(orgaosQueryOptions),
   head: () => ({
     meta: [
       { title: "Demandas · Kanban Sentinela VISAT" },
@@ -35,6 +36,8 @@ export const Route = createFileRoute("/_authenticated/demandas")({
           "Quadro Kanban das demandas da VISAT: recebidas, em análise, em atendimento e concluídas, com alertas de prazo legal.",
       },
       { property: "og:title", content: "Demandas · Kanban Sentinela VISAT" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       {
         property: "og:description",
         content: "Fluxo visual das demandas de MPT, TRT e sindicatos atendidas pela VISAT.",
@@ -46,6 +49,9 @@ export const Route = createFileRoute("/_authenticated/demandas")({
 
 function Kanban() {
   const { demandas, mover } = useSentinela();
+  const { data: orgaos = [] } = useOrgaos();
+  const opcoesOrgaos = Array.from(new Set([...orgaos.map((o) => o.nome), ...demandas.map((d) => d.orgao)]))
+    .filter(Boolean).sort((a, b) => a.localeCompare(b, "pt-BR"));
   const [orgao, setOrgao] = useState("todos");
   const [inspetor, setInspetor] = useState("todos");
   const [status, setStatus] = useState("todos");
@@ -90,7 +96,7 @@ function Kanban() {
           <Filter className="size-4" />
           Filtros
         </span>
-        <FiltroSelect valor={orgao} aoMudar={setOrgao} rotulo="Órgão solicitante" opcoes={ORGAOS} />
+        <FiltroSelect valor={orgao} aoMudar={setOrgao} rotulo="Órgão solicitante" opcoes={opcoesOrgaos} />
         <FiltroSelect
           valor={inspetor}
           aoMudar={setInspetor}
@@ -225,7 +231,7 @@ function FiltroSelect({
 }) {
   return (
     <Select value={valor} onValueChange={aoMudar}>
-      <SelectTrigger className="w-[210px] bg-card">
+      <SelectTrigger aria-label={rotulo} className="w-[210px] bg-card">
         <span className="truncate">
           {valor === "todos"
             ? `${rotulo}: todos`

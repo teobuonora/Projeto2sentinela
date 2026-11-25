@@ -10,8 +10,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
+import { OrgaosSection } from "@/components/orgaos-section";
+import { orgaosQueryOptions } from "@/lib/orgaos";
 
 export const Route = createFileRoute("/_authenticated/configuracoes")({
+  loader: ({ context }) => context.queryClient.ensureQueryData(orgaosQueryOptions),
   head: () => ({
     meta: [
       { title: "Configurações · Sentinela VISAT" },
@@ -21,6 +24,8 @@ export const Route = createFileRoute("/_authenticated/configuracoes")({
           "Dados do servidor, alteração de senha com validação de segurança e preferências de notificações do Sentinela.",
       },
       { property: "og:title", content: "Configurações · Sentinela VISAT" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       {
         property: "og:description",
         content: "Minha conta e preferências de alertas de prazos legais da VISAT.",
@@ -207,6 +212,8 @@ function Configuracoes() {
           </CardContent>
         </Card>
       </div>
+
+      <OrgaosSection />
 
       <Card className="card-elevated border-border">
         <CardHeader>

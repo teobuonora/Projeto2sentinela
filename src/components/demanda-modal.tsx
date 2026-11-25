@@ -26,13 +26,13 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import {
   INSPETORES,
-  ORGAOS,
   STATUS_LIST,
   formatarData,
   useSentinela,
   type Demanda,
   type Status,
 } from "@/lib/sentinela-data";
+import { useOrgaos } from "@/lib/orgaos";
 
 type Props = {
   open: boolean;
@@ -55,6 +55,7 @@ const vazia = (id: string): Demanda => ({
 
 export function DemandaModal({ open, onOpenChange, demanda }: Props) {
   const { upsert, remover, novoId } = useSentinela();
+  const { data: orgaos = [], isPending: carregandoOrgaos, isError: erroOrgaos } = useOrgaos();
   const [form, setForm] = useState<Demanda>(vazia("novo"));
   const [enviando, setEnviando] = useState(false);
 
@@ -101,18 +102,22 @@ export function DemandaModal({ open, onOpenChange, demanda }: Props) {
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
             <Label>Órgão solicitante</Label>
-            <Select value={form.orgao} onValueChange={(v) => set("orgao", v)}>
-              <SelectTrigger>
+            <Select value={form.orgao} onValueChange={(v) => set("orgao", v)} disabled={carregandoOrgaos || erroOrgaos}>
+              <SelectTrigger aria-label="Órgão solicitante">
                 <SelectValue placeholder="Selecione o órgão" />
               </SelectTrigger>
               <SelectContent>
-                {ORGAOS.map((o) => (
-                  <SelectItem key={o} value={o}>
-                    {o}
+                {form.orgao && !orgaos.some((o) => o.nome === form.orgao) && (
+                  <SelectItem value={form.orgao}>{form.orgao}</SelectItem>
+                )}
+                {orgaos.map((o) => (
+                  <SelectItem key={o.id} value={o.nome}>
+                    {o.nome}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
+            {erroOrgaos && <p role="alert" className="text-xs text-danger">Não foi possível carregar os órgãos.</p>}
           </div>
 
           <div className="space-y-2">

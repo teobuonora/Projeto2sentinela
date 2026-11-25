@@ -11,7 +11,6 @@ export const STATUS_LIST: { id: Status; label: string }[] = [
   { id: "concluidas", label: "Concluídas" },
 ];
 
-export const ORGAOS = ["MPT", "TRT", "Sindicato", "Ministério Público Estadual", "CEREST", "Defensoria Pública"];
 export const INSPETORES = ["João Furtado", "Rafael Lins", "Téo Buonora", "Marina Tavares", "Carla Meneses"];
 
 export type Demanda = {
