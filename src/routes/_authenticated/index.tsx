@@ -1,11 +1,14 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { AlertTriangle, CalendarClock, CheckCircle2, FolderOpen, Search } from "lucide-react";
+import { AlertTriangle, ArrowUpRight, CalendarClock, CheckCircle2, FolderOpen, Search, X } from "lucide-react";
 
+import { DemandaModal } from "@/components/demanda-modal";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
+import { filtrarDemandasPorProtocolo } from "@/lib/busca-protocolo";
 import {
   INSPETORES,
   SEVERIDADE_CLASS,
@@ -15,6 +18,7 @@ import {
   formatarData,
   severidade,
   useSentinela,
+  type Demanda,
 } from "@/lib/sentinela-data";
 
 export const Route = createFileRoute("/_authenticated/")({
@@ -39,17 +43,16 @@ export const Route = createFileRoute("/_authenticated/")({
 function Dashboard() {
   const { demandas } = useSentinela();
   const [busca, setBusca] = useState("");
+  const [selecionada, setSelecionada] = useState<Demanda | null>(null);
+  const [modalAberta, setModalAberta] = useState(false);
 
   const ativas = demandas.filter((d) => d.status !== "concluidas");
   const criticas = ativas.filter((d) => diasRestantes(d.prazo) <= 5);
   const concluidas = demandas.filter((d) => d.status === "concluidas");
 
   const resultados = useMemo(() => {
-    const q = busca.trim().toLowerCase();
-    if (!q) return [];
-    return demandas.filter(
-      (d) => d.protocolo.toLowerCase().includes(q) || d.assunto.toLowerCase().includes(q),
-    );
+    if (!busca.trim()) return [];
+    return filtrarDemandasPorProtocolo(demandas, busca);
   }, [busca, demandas]);
 
   const carga = INSPETORES.map((nome) => ({
@@ -77,8 +80,19 @@ function Dashboard() {
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
               placeholder="Busca rápida por número de protocolo (ex.: VISAT-2026-00841)"
-              className="h-12 pl-10 text-base"
+              aria-label="Busca rápida por número de protocolo"
+              className="h-12 pl-10 pr-10 text-base"
             />
+            {busca && (
+              <button
+                type="button"
+                onClick={() => setBusca("")}
+                aria-label="Limpar busca"
+                className="absolute right-3 top-1/2 -translate-y-1/2 rounded p-1 text-muted-foreground hover:text-foreground"
+              >
+                <X className="size-4" />
+              </button>
+            )}
           </div>
           {busca && (
             <div className="divide-y divide-border rounded-lg border border-border">
@@ -86,13 +100,23 @@ function Dashboard() {
                 <p className="p-3 text-sm text-muted-foreground">Nenhum protocolo encontrado.</p>
               )}
               {resultados.map((d) => (
-                <div key={d.id} className="flex flex-wrap items-center justify-between gap-2 p-3">
-                  <div>
+                <div
+                  key={d.id}
+                  className="flex flex-wrap items-center justify-between gap-2 p-3 transition-colors hover:bg-accent/40"
+                >
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelecionada(d);
+                      setModalAberta(true);
+                    }}
+                    className="min-w-0 flex-1 text-left"
+                  >
                     <p className="font-medium tabular-nums">{d.protocolo}</p>
                     <p className="text-sm text-muted-foreground">
                       {d.orgao} · {d.assunto}
                     </p>
-                  </div>
+                  </button>
                   <div className="flex items-center gap-2">
                     <Badge variant="outline">
                       {STATUS_LIST.find((s) => s.id === d.status)?.label}
@@ -109,6 +133,12 @@ function Dashboard() {
                         ? `Respondida · ${formatarData(d.data_encerramento)}`
                         : formatarData(d.prazo)}
                     </Badge>
+                    <Button variant="ghost" size="sm" asChild>
+                      <Link to="/demandas" search={{ protocolo: d.protocolo }}>
+                        Ver card
+                        <ArrowUpRight className="size-3.5" />
+                      </Link>
+                    </Button>
                   </div>
                 </div>
               ))}
@@ -187,6 +217,8 @@ function Dashboard() {
           </CardContent>
         </Card>
       </div>
+
+      <DemandaModal open={modalAberta} onOpenChange={setModalAberta} demanda={selecionada} />
     </div>
   );
 }
