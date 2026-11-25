@@ -53,7 +53,6 @@ A ferramenta centraliza o recebimento de demandas de órgãos de controle e arti
 - **Versionamento:** [Git / GitHub]
 
 ---
-```markdown
 ## ⚙️ Como Executar o Projeto Localmente
 
 Siga o passo a passo abaixo para clonar o repositório e executar a aplicação em seu ambiente de desenvolvimento.
@@ -122,7 +121,7 @@ Após a inicialização do Vite, acesse no navegador o endereço indicado no ter
 
 ---
 
-### 🌐 Acesso Direto (Ambiente Publicado)
+## 🌐 Acesso Direto (Ambiente Publicado)
 Caso prefira testar a aplicação sem instalar nada localmente, o ambiente oficial em produção está disponível em:  
 👉 **[visat-sentinel-hub.lovable.app](https://visat-sentinel-hub.lovable.app)**
 ---
