@@ -259,7 +259,15 @@ export function DemandaModal({ open, onOpenChange, demanda }: Props) {
                       type="button"
                       className="text-muted-foreground transition-colors hover:text-danger"
                       onClick={async () => {
-                        if (a.includes("/")) await supabase.storage.from("anexos").remove([a]);
+                        if (a.includes("/")) {
+                          const { error } = await supabase.storage.from("anexos").remove([a]);
+                          if (error) {
+                            toast.error("Não foi possível remover o arquivo", {
+                              description: "Apenas quem enviou o anexo pode excluí-lo.",
+                            });
+                            return;
+                          }
+                        }
                         setForm((prev) => ({ ...prev, anexos: prev.anexos.filter((x) => x !== a) }));
                       }}
                     >
