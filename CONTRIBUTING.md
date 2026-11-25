@@ -1,93 +1,76 @@
-# Guia de Contribuição — Sentinela VISAT
+# 📘 Guia de Contribuição — Sentinela VISAT
 
-## 1. Objetivo
+Este documento estabelece os padrões técnicos, o fluxo de versionamento e as convenções de colaboração da equipe no desenvolvimento do **Sentinela VISAT** (Sistema de Gestão de Demandas da Vigilância em Saúde do Trabalhador).
 
-Este documento estabelece as diretrizes de contribuição para o projeto Sentinela, visando garantir a qualidade do código, a organização do desenvolvimento e a rastreabilidade das atividades realizadas pela equipe.
+---
 
-## 2. Tecnologias utilizadas
+## 👥 1. Integrantes da Equipe
 
-- React
-- TypeScript
-- Tailwind CSS
-- Supabase
-- Lovable
-- Git e GitHub
+* **Téo Buonora Valença**
+* **Heitor D'Albuquerque**
+* **Pedro Peixoto**
+* **Rafael Gurgel**
+* **João Gabriel**
+* **Lucas Soares Pereira**
+* **Rubens Souza**
 
-## 3. Fluxo de desenvolvimento
+---
 
-1. Identificar a tarefa no Trello.
-2. Criar uma Issue no GitHub.
-3. Atribuir a Issue ao integrante responsável.
-4. Criar uma branch a partir da main.
-5. Implementar e validar as alterações.
-6. Registrar as alterações por meio de commits.
-7. Abrir um Pull Request.
-8. Revisar e integrar as alterações à main.
+## 💻 2. Stack Tecnológica e Arquitetura
 
-## 4. Padrão de branches
+O projeto adota uma arquitetura full-stack moderna baseada no ecossistema TanStack e Lovable Cloud:
 
-Utilizar nomes descritivos conforme o tipo de contribuição:
+* **Frontend & Framework:** React 19, TanStack Start v1 (roteamento estrito via `@tanstack/react-router`), Vite 7.
+* **Linguagem & Tipagem:** TypeScript 5+ com checagem rígida de tipos (`tsconfig.json`).
+* **Estilização & Design System:** Tailwind CSS v4 com tokens semânticos em OKLCH (`src/styles.css`) e componentes baseados no shadcn/ui.
+* **Backend como Serviço (Lovable Cloud):**
+  * **Banco de Dados:** PostgreSQL com Row Level Security (RLS) habilitado.
+  * **Tabelas Principais:** `public.demandas` (gestão dos processos de fiscalização) e `public.orgaos` (órgãos demandantes).
+  * **Armazenamento de Arquivos:** Bucket `anexos` (relatórios técnicos periciais em PDF/CSV de até 20 MB).
+  * **Tempo Real:** Canal Postgres Changes para sincronização instantânea das colunas do Kanban.
+* **Gerenciador de Pacotes e Testes:** Bun e Vitest (`bun test`).
 
-- feat/: novas funcionalidades.
-- fix/: correções de bugs.
-- docs/: alterações na documentação.
-- test/: implementação ou atualização de testes.
-- refactor/: melhorias na estrutura do código.
+---
 
-## 5. Padrão de commits
+## 🔄 3. Ciclo de Desenvolvimento e Versionamento
 
-As mensagens devem ser objetivas e identificar a alteração realizada.
+O repositório opera com **sincronização bidirecional ativa (*two-way sync*)** entre o GitHub e a plataforma Lovable na branch principal (`main`).
 
-Exemplos:
+### 3.1. Fluxo de Trabalho (Workflow)
+1. **Seleção de Item no Board:** Mover a História de Usuário (ex.: `UH1`, `UH4`) ou defeito técnico da coluna *Sprint Backlog* para *In Progress* no GitHub Projects / Board da Sprint.
+2. **Criação de Issue:** Toda alteração significativa deve possuir uma Issue correspondente aberta no GitHub contendo:
+   * Contexto e motivação técnica.
+   * Critérios de aceitação da história.
+   * Histórico de commits relacionados.
+3. **Desenvolvimento em Branches ou Pareamento:**
+   * Para desenvolvimento local via Git: criar ramificação a partir da `main`.
+   * Para sessões com IA / Lovable: validar a integridade no preview antes da mesclagem na branch sincronizada.
+4. **Validação e Teste Local:** Executar a suíte de testes (`bun test`) e verificar se não há quebras no build do TypeScript.
+5. **Integração e Fechamento:** Ao concluir, referenciar a issue na mensagem de commit ou pull request utilizando `Closes #N` para encerramento automático.
 
-- feat: adicionar filtro de demandas
-- fix: corrigir validação de formulário
-- docs: atualizar documentação
-- test: adicionar teste de autenticação
+---
 
-Quando aplicável, incluir o identificador da história de usuário e o número da Issue correspondente.
+## 🌿 4. Padrão de Nomenclatura de Branches
 
-## 6. Pull Requests e rastreabilidade
+Utilizar prefixos padronizados em inglês minúsculo, seguidos pelo identificador da história ou módulo:
 
-Todo Pull Request deve apresentar:
+* `feat/UH<n>-descricao-curta`: Nova funcionalidade (ex.: `feat/UH4-upload-storage-anexos`).
+* `fix/BUG<n>-descricao-curta`: Correção de defeito (ex.: `fix/BUG01-persistencia-realtime`).
+* `test/UH<n>-suite-testes`: Implementação de testes unitários ou de integração (ex.: `test/UH5-calculo-prazos`).
+* `docs/atualizacao-relato`: Melhorias de documentação, atas ou guias (ex.: `docs/readme-pair-programming`).
+* `refactor/otimizacao-modulo`: Refatoração interna sem alteração de comportamento externo.
 
-- Descrição das alterações realizadas.
-- Referência à Issue correspondente.
-- Identificação da história de usuário, quando aplicável.
-- Evidências de validação ou testes.
+---
 
-Utilizar a expressão Closes #N, substituindo N pelo número da Issue, para encerrá-la automaticamente após a integração à branch principal.
+## 💬 5. Padrão de Commits e Coautoria
 
-## 7. Desenvolvimento com Lovable
+As mensagens de commit devem seguir o padrão **Conventional Commits**, identificando a história atendida e creditando os participantes das sessões de **Programação em Pares (Pair Programming)**.
 
-As alterações realizadas pelo Lovable devem ser revisadas e testadas antes da publicação.
+### Estrutura da Mensagem:
+```text
+<tipo>(<escopo>): <descrição no imperativo e em português>
 
-Os integrantes devem garantir o registro de suas contribuições por meio de commits próprios ou coautoria, quando houver participação efetiva em conjunto.
+- Detalhamento do que foi alterado
+- Referência à história de usuário ou issue: Closes #N
 
-## 8. Qualidade e testes
-
-Antes de integrar uma alteração:
-
-- Verificar o funcionamento das funcionalidades modificadas.
-- Avaliar possíveis impactos nas funcionalidades existentes.
-- Executar os testes automatizados disponíveis.
-- Registrar bugs identificados por meio de Issues.
-- Vincular as evidências de teste aos cartões do Trello.
-
-## 9. Segurança
-
-- Não versionar arquivos .env.
-- Não compartilhar senhas, tokens ou chaves privadas.
-- Utilizar variáveis de ambiente para configurações sensíveis.
-- Manter um arquivo .env.example sem credenciais reais.
-- Não utilizar dados pessoais reais em testes.
-
-## 10. Pair Programming
-
-As atividades realizadas em pares devem ser documentadas, identificando os participantes, as tarefas desenvolvidas e os resultados obtidos.
-
-A coautoria dos commits deve refletir a participação real dos integrantes.
-
-## 11. Responsabilidade da equipe
-
-Todos os integrantes devem contribuir para a evolução do projeto, manter a documentação atualizada e preservar a estabilidade da aplicação publicada.
+Co-authored-by: Nome do Colega <email-do-colega@dominio.com>
