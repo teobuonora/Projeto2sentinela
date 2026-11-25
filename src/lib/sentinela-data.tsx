@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { dataLocalIso, marcarComoRespondida } from "./retorno-institucional";
 
 export type Status = "recebidas" | "analise" | "atendimento" | "concluidas";
 
@@ -24,6 +25,7 @@ export type Demanda = {
   parecer: string;
   anexos: string[];
   historico: { data: string; autor: string; acao: string }[];
+  data_encerramento: string | null;
 };
 
 const hoje = new Date();
@@ -83,6 +85,7 @@ const seed: Demanda[] = [
       { data: iso(-12), autor: "Sistema", acao: "Demanda recebida do MPT" },
       { data: iso(-9), autor: "João Furtado", acao: "Movida para Em Análise" },
     ],
+    data_encerramento: null,
   },
   {
     id: "2",
@@ -98,6 +101,7 @@ const seed: Demanda[] = [
       { data: iso(-8), autor: "Sistema", acao: "Demanda recebida do TRT" },
       { data: iso(-4), autor: "Rafael Lins", acao: "Movida para Em Atendimento" },
     ],
+    data_encerramento: null,
   },
   {
     id: "3",
@@ -110,6 +114,7 @@ const seed: Demanda[] = [
     parecer: "",
     anexos: [],
     historico: [{ data: iso(-1), autor: "Sistema", acao: "Demanda recebida do Sindicato" }],
+    data_encerramento: null,
   },
   {
     id: "4",
@@ -122,6 +127,7 @@ const seed: Demanda[] = [
     parecer: "",
     anexos: [],
     historico: [{ data: iso(-1), autor: "Sistema", acao: "Demanda recebida do CEREST" }],
+    data_encerramento: null,
   },
   {
     id: "5",
@@ -134,6 +140,7 @@ const seed: Demanda[] = [
     parecer: "Vistoria agendada com a empresa para a próxima semana.",
     anexos: ["tac-visat.pdf"],
     historico: [{ data: iso(-20), autor: "Sistema", acao: "Demanda recebida do MPT" }],
+    data_encerramento: null,
   },
   {
     id: "6",
@@ -146,6 +153,7 @@ const seed: Demanda[] = [
     parecer: "Solicitada documentação complementar ao empregador.",
     anexos: [],
     historico: [{ data: iso(-15), autor: "Sistema", acao: "Demanda recebida da Defensoria" }],
+    data_encerramento: null,
   },
   {
     id: "7",
@@ -158,6 +166,7 @@ const seed: Demanda[] = [
     parecer: "Retorno institucional enviado ao TRT em tempo hábil.",
     anexos: ["relatorio-final.pdf"],
     historico: [{ data: iso(-30), autor: "João Furtado", acao: "Retorno institucional registrado" }],
+    data_encerramento: iso(-30),
   },
   {
     id: "8",
@@ -170,6 +179,7 @@ const seed: Demanda[] = [
     parecer: "Demanda concluída e arquivada.",
     anexos: [],
     historico: [{ data: iso(-42), autor: "Rafael Lins", acao: "Concluída" }],
+    data_encerramento: iso(-42),
   },
   {
     id: "9",
@@ -182,6 +192,7 @@ const seed: Demanda[] = [
     parecer: "",
     anexos: [],
     historico: [{ data: iso(-2), autor: "Sistema", acao: "Demanda recebida do MPT" }],
+    data_encerramento: null,
   },
   {
     id: "10",
@@ -194,13 +205,16 @@ const seed: Demanda[] = [
     parecer: "",
     anexos: [],
     historico: [{ data: iso(0), autor: "Sistema", acao: "Demanda recebida do MPE" }],
+    data_encerramento: null,
   },
 ];
 
 type Ctx = {
   demandas: Demanda[];
+  usuarioAtual: string;
   upsert: (d: Demanda) => void;
   mover: (id: string, status: Status) => void;
+  registrarRetorno: (d: Demanda) => Demanda;
   remover: (id: string) => void;
   novoId: () => string;
 };
@@ -211,20 +225,29 @@ void seed;
 type Row = {
   id: string; protocolo: string; orgao: string; inspetor: string; prazo: string;
   status: string; assunto: string; parecer: string; anexos: unknown; historico: unknown;
+  data_encerramento: string | null;
 };
 const fromRow = (r: Row): Demanda => ({
   ...r,
   status: r.status as Status,
   anexos: (r.anexos as string[]) ?? [],
   historico: (r.historico as Demanda["historico"]) ?? [],
+  data_encerramento: r.data_encerramento ?? null,
 });
 const toRow = (d: Demanda) => ({
   id: d.id, protocolo: d.protocolo, orgao: d.orgao, inspetor: d.inspetor, prazo: d.prazo,
   status: d.status, assunto: d.assunto, parecer: d.parecer, anexos: d.anexos, historico: d.historico,
+  data_encerramento: d.data_encerramento,
   updated_at: new Date().toISOString(),
 });
 
-export function SentinelaProvider({ children }: { children: ReactNode }) {
+export function SentinelaProvider({
+  children,
+  usuarioAtual = "Servidor",
+}: {
+  children: ReactNode;
+  usuarioAtual?: string;
+}) {
   const [demandas, setDemandas] = useState<Demanda[]>([]);
   const ref = useRef(demandas);
   ref.current = demandas;
@@ -260,6 +283,7 @@ export function SentinelaProvider({ children }: { children: ReactNode }) {
   const value = useMemo<Ctx>(
     () => ({
       demandas,
+      usuarioAtual,
       novoId: () => crypto.randomUUID(),
       upsert: (d) => {
         setDemandas((prev) =>
@@ -267,17 +291,31 @@ export function SentinelaProvider({ children }: { children: ReactNode }) {
         );
         salvar(d);
       },
+      registrarRetorno: (d) => {
+        const atualizada = marcarComoRespondida(d, usuarioAtual);
+        setDemandas((prev) =>
+          prev.some((p) => p.id === atualizada.id)
+            ? prev.map((p) => (p.id === atualizada.id ? atualizada : p))
+            : [atualizada, ...prev],
+        );
+        salvar(atualizada);
+        return atualizada;
+      },
       mover: (id, status) => {
         const p = ref.current.find((x) => x.id === id);
         if (!p) return;
+        const dataHoje = dataLocalIso();
+        const dataEncerramento =
+          status === "concluidas" ? (p.data_encerramento ?? dataHoje) : null;
         const d: Demanda = {
           ...p,
           status,
+          data_encerramento: dataEncerramento,
           historico: [
             ...p.historico,
             {
-              data: new Date().toISOString().slice(0, 10),
-              autor: "Sistema",
+              data: dataHoje,
+              autor: usuarioAtual,
               acao: `Movida para ${STATUS_LIST.find((s) => s.id === status)?.label}`,
             },
           ],
@@ -296,7 +334,7 @@ export function SentinelaProvider({ children }: { children: ReactNode }) {
       },
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [demandas],
+    [demandas, usuarioAtual],
   );
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;

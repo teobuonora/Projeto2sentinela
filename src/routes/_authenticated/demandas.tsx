@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Filter, Paperclip, Plus, User } from "lucide-react";
+import { CheckCircle2, Filter, Paperclip, Plus, Send, User } from "lucide-react";
 import { toast } from "sonner";
 
 import { DemandaModal } from "@/components/demanda-modal";
@@ -48,7 +48,7 @@ export const Route = createFileRoute("/_authenticated/demandas")({
 });
 
 function Kanban() {
-  const { demandas, mover } = useSentinela();
+  const { demandas, mover, registrarRetorno } = useSentinela();
   const { data: orgaos = [] } = useOrgaos();
   const opcoesOrgaos = Array.from(new Set([...orgaos.map((o) => o.nome), ...demandas.map((d) => d.orgao)]))
     .filter(Boolean).sort((a, b) => a.localeCompare(b, "pt-BR"));
@@ -193,10 +193,41 @@ function Kanban() {
                     </div>
                     <Badge
                       variant="outline"
-                      className={`mt-3 w-full justify-center ${SEVERIDADE_CLASS[sev]}`}
+                      className={`mt-3 w-full justify-center gap-1.5 ${
+                        d.status === "concluidas"
+                          ? "bg-success-soft text-success border-success/25"
+                          : SEVERIDADE_CLASS[sev]
+                      }`}
                     >
-                      {SEVERIDADE_LABEL[sev]} · {formatarData(d.prazo)}
+                      {d.status === "concluidas" ? (
+                        <>
+                          <CheckCircle2 className="size-3.5" />
+                          {d.data_encerramento
+                            ? `Respondida · ${formatarData(d.data_encerramento)}`
+                            : "Respondida"}
+                        </>
+                      ) : (
+                        `${SEVERIDADE_LABEL[sev]} · ${formatarData(d.prazo)}`
+                      )}
                     </Badge>
+                    {d.status === "atendimento" && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="mt-2 w-full text-xs"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const encerrada = registrarRetorno(d);
+                          toast.success("Demanda marcada como Respondida", {
+                            description: `${encerrada.protocolo} movida para Concluídas em ${formatarData(encerrada.data_encerramento!)}.`,
+                          });
+                        }}
+                      >
+                        <Send className="size-3.5" />
+                        Marcar como Respondida
+                      </Button>
+                    )}
                   </article>
                 );
               })}

@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { Archive, FileUp, Send, X } from "lucide-react";
+import { Archive, CheckCircle2, FileUp, Send, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { dataLocalIso } from "@/lib/retorno-institucional";
 
 const nomeAnexo = (p: string) => p.split("/").pop() ?? p;
 
@@ -45,16 +46,17 @@ const vazia = (id: string): Demanda => ({
   protocolo: "",
   orgao: "",
   inspetor: "",
-  prazo: new Date().toISOString().slice(0, 10),
+  prazo: dataLocalIso(),
   status: "recebidas",
   assunto: "",
   parecer: "",
   anexos: [],
   historico: [],
+  data_encerramento: null,
 });
 
 export function DemandaModal({ open, onOpenChange, demanda }: Props) {
-  const { upsert, remover, novoId } = useSentinela();
+  const { upsert, registrarRetorno, remover, novoId, usuarioAtual } = useSentinela();
   const { data: orgaos = [], isPending: carregandoOrgaos, isError: erroOrgaos } = useOrgaos();
   const [form, setForm] = useState<Demanda>(vazia("novo"));
   const [enviando, setEnviando] = useState(false);
@@ -70,19 +72,36 @@ export function DemandaModal({ open, onOpenChange, demanda }: Props) {
       toast.error("Preencha protocolo, órgão solicitante e inspetor responsável.");
       return;
     }
+    const dataHoje = dataLocalIso();
     upsert({
       ...form,
+      data_encerramento:
+        form.status === "concluidas" ? (form.data_encerramento ?? dataHoje) : null,
       historico: [
         ...form.historico,
         {
-          data: new Date().toISOString().slice(0, 10),
-          autor: "Téo Buonora",
+          data: dataHoje,
+          autor: usuarioAtual,
           acao: demanda ? "Demanda atualizada" : "Demanda cadastrada",
         },
       ],
     });
     toast.success(demanda ? "Demanda atualizada" : "Demanda cadastrada", {
       description: `Protocolo ${form.protocolo}`,
+    });
+    onOpenChange(false);
+  };
+
+  const jaRespondida = form.status === "concluidas" && Boolean(form.data_encerramento);
+
+  const marcarRespondida = () => {
+    if (!form.protocolo || !form.orgao || !form.inspetor) {
+      toast.error("Preencha protocolo, órgão solicitante e inspetor responsável antes de encerrar.");
+      return;
+    }
+    const encerrada = registrarRetorno(form);
+    toast.success("Demanda marcada como Respondida", {
+      description: `Retorno institucional registrado para ${encerrada.orgao} em ${formatarData(encerrada.data_encerramento!)}.`,
     });
     onOpenChange(false);
   };
@@ -98,6 +117,15 @@ export function DemandaModal({ open, onOpenChange, demanda }: Props) {
             Registro de demanda externa recebida pela Vigilância em Saúde do Trabalhador.
           </DialogDescription>
         </DialogHeader>
+
+        {jaRespondida && form.data_encerramento && (
+          <div className="flex items-center gap-2 rounded-lg border border-success/30 bg-success-soft px-3 py-2 text-sm font-medium text-success">
+            <CheckCircle2 className="size-4 shrink-0" />
+            <span>
+              Demanda formalmente respondida · Data de encerramento: {formatarData(form.data_encerramento)}
+            </span>
+          </div>
+        )}
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
@@ -301,27 +329,11 @@ export function DemandaModal({ open, onOpenChange, demanda }: Props) {
           <div className="flex flex-wrap gap-2">
             <Button
               variant="outline"
-              onClick={() => {
-                toast.success("Retorno institucional registrado", {
-                  description: `Ofício de resposta gerado para ${form.orgao || "o órgão solicitante"}.`,
-                });
-                upsert({
-                  ...form,
-                  status: "concluidas",
-                  historico: [
-                    ...form.historico,
-                    {
-                      data: new Date().toISOString().slice(0, 10),
-                      autor: "Téo Buonora",
-                      acao: "Retorno institucional registrado",
-                    },
-                  ],
-                });
-                onOpenChange(false);
-              }}
+              disabled={jaRespondida}
+              onClick={marcarRespondida}
             >
-              <Send className="size-4" />
-              Registrar retorno institucional
+              {jaRespondida ? <CheckCircle2 className="size-4" /> : <Send className="size-4" />}
+              {jaRespondida ? "Respondida" : "Marcar como Respondida"}
             </Button>
             <Button
               variant="ghost"

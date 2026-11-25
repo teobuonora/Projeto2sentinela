@@ -43,6 +43,13 @@
       "when": 1795630387477,
       "tag": "0005_harden_has_role_security_invoker",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1795632108079,
+      "tag": "0006_add_data_encerramento_demandas",
+      "breakpoints": true
     }
   ]
 }

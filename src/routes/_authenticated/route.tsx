@@ -30,7 +30,7 @@ function AppShell() {
     .join("");
 
   return (
-    <SentinelaProvider>
+    <SentinelaProvider usuarioAtual={nome}>
       <SidebarProvider>
         <div className="flex min-h-screen w-full bg-background">
           <AppSidebar />

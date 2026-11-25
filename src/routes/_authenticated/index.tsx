@@ -97,8 +97,17 @@ function Dashboard() {
                     <Badge variant="outline">
                       {STATUS_LIST.find((s) => s.id === d.status)?.label}
                     </Badge>
-                    <Badge variant="outline" className={SEVERIDADE_CLASS[severidade(d.prazo)]}>
-                      {formatarData(d.prazo)}
+                    <Badge
+                      variant="outline"
+                      className={
+                        d.status === "concluidas"
+                          ? "bg-success-soft text-success border-success/25"
+                          : SEVERIDADE_CLASS[severidade(d.prazo)]
+                      }
+                    >
+                      {d.status === "concluidas" && d.data_encerramento
+                        ? `Respondida · ${formatarData(d.data_encerramento)}`
+                        : formatarData(d.prazo)}
                     </Badge>
                   </div>
                 </div>

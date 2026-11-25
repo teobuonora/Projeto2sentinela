@@ -19,6 +19,7 @@ export type Database = {
           anexos: Json
           assunto: string
           created_at: string
+          data_encerramento: string | null
           historico: Json
           id: string
           inspetor: string
@@ -33,6 +34,7 @@ export type Database = {
           anexos?: Json
           assunto?: string
           created_at?: string
+          data_encerramento?: string | null
           historico?: Json
           id: string
           inspetor: string
@@ -47,6 +49,7 @@ export type Database = {
           anexos?: Json
           assunto?: string
           created_at?: string
+          data_encerramento?: string | null
           historico?: Json
           id?: string
           inspetor?: string
