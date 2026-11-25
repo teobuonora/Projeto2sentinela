@@ -10,13 +10,29 @@ export const Route = createFileRoute("/_authenticated")({
   ssr: false,
   beforeLoad: async ({ location }) => {
     const { data, error } = await supabase.auth.getUser();
-    const decisao = avaliarAcessoRotaProtegida(error ? null : data.user, location.href);
+    const usuario = error ? null : data.user;
+    let papeis: string[] = [];
+
+    if (usuario?.id) {
+      const { data: rolesData, error: rolesError } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", usuario.id);
+      if (!rolesError && rolesData) {
+        papeis = rolesData.map((r) => r.role);
+      }
+    }
+
+    const decisao = avaliarAcessoRotaProtegida(usuario, location.href, papeis);
     if (!decisao.permitido) {
+      if (decisao.motivo === "acesso-nao-autorizado") {
+        await supabase.auth.signOut();
+      }
       throw redirect({
         to: "/auth",
         search: {
           redirect: decisao.destinoOriginal,
-          motivo: "autenticacao-necessaria",
+          motivo: decisao.motivo,
         },
       });
     }

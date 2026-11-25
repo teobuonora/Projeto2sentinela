@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {
   avaliarAcessoRotaProtegida,
   sanitizarDestinoPosLogin,
+  usuarioPossuiPapelAutorizado,
   validarCredenciaisLogin,
 } from "./autenticacao-usuario";
 
@@ -13,16 +14,35 @@ describe("UH14 — autenticação de usuário (login)", () => {
     if (!resultado.permitido) {
       assert.equal(resultado.redirecionarPara, "/auth");
       assert.equal(resultado.destinoOriginal, "/demandas?protocolo=VISAT-2026-00841");
+      assert.equal(resultado.motivo, "autenticacao-necessaria");
     }
   });
 
-  test("libera acesso quando há usuário autenticado válido", () => {
+  test("bloqueia acesso de conta autenticada sem papel autorizado em user_roles", () => {
+    const usuario = { id: "user-novo-1", email: "externo@gmail.com" };
+    const resultado = avaliarAcessoRotaProtegida(usuario, "/demandas", []);
+    assert.equal(resultado.permitido, false);
+    if (!resultado.permitido) {
+      assert.equal(resultado.redirecionarPara, "/auth");
+      assert.equal(resultado.motivo, "acesso-nao-autorizado");
+    }
+  });
+
+  test("libera acesso quando há usuário autenticado com papel autorizado", () => {
     const usuario = { id: "user-visat-1", email: "inspetor@visat.recife.pe.gov.br" };
-    const resultado = avaliarAcessoRotaProtegida(usuario, "/demandas");
+    const resultado = avaliarAcessoRotaProtegida(usuario, "/demandas", ["inspetor"]);
     assert.equal(resultado.permitido, true);
     if (resultado.permitido) {
       assert.equal(resultado.usuario.id, usuario.id);
     }
+  });
+
+  test("reconhece somente papéis admin e inspetor como autorizados", () => {
+    assert.equal(usuarioPossuiPapelAutorizado(["admin"]), true);
+    assert.equal(usuarioPossuiPapelAutorizado(["inspetor"]), true);
+    assert.equal(usuarioPossuiPapelAutorizado([]), false);
+    assert.equal(usuarioPossuiPapelAutorizado(null), false);
+    assert.equal(usuarioPossuiPapelAutorizado(["visitante"]), false);
   });
 
   test("valida credenciais de e-mail e senha antes do login", () => {

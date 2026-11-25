@@ -1,3 +1,14 @@
+export const PAPEIS_AUTORIZADOS = ["admin", "inspetor"] as const;
+export type PapelAutorizado = (typeof PAPEIS_AUTORIZADOS)[number];
+
+export type MotivoBloqueioAcesso = "autenticacao-necessaria" | "acesso-nao-autorizado";
+
+export const MENSAGEM_CONTA_NAO_AUTORIZADA =
+  "Esta conta ainda não está autorizada a acessar o Sentinela. Solicite liberação à equipe da VISAT.";
+
+export const MENSAGEM_GOOGLE_NAO_CADASTRADO =
+  "Apenas contas previamente cadastradas e autorizadas podem entrar com Google. Para solicitar acesso, utilize a aba Criar conta.";
+
 export interface UsuarioAutenticadoBasico {
   id: string;
   email?: string | null;
@@ -5,13 +16,18 @@ export interface UsuarioAutenticadoBasico {
 
 export type ResultadoAcessoRota<T extends UsuarioAutenticadoBasico> =
   | { permitido: true; usuario: T }
-  | { permitido: false; redirecionarPara: "/auth"; destinoOriginal: string };
+  | { permitido: false; redirecionarPara: "/auth"; destinoOriginal: string; motivo: MotivoBloqueioAcesso };
 
 export type ResultadoValidacaoCredenciais =
   | { valido: true; email: string; senha: string }
   | { valido: false; erro: string };
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+export function usuarioPossuiPapelAutorizado(papeis: readonly string[] | null | undefined): boolean {
+  if (!papeis || papeis.length === 0) return false;
+  return papeis.some((papel) => (PAPEIS_AUTORIZADOS as readonly string[]).includes(papel));
+}
 
 export function sanitizarDestinoPosLogin(destino: unknown): string {
   if (typeof destino !== "string") return "/";
@@ -33,12 +49,22 @@ export function sanitizarDestinoPosLogin(destino: unknown): string {
 export function avaliarAcessoRotaProtegida<T extends UsuarioAutenticadoBasico>(
   usuario: T | null | undefined,
   destinoAtual: string,
+  papeis?: readonly string[] | null,
 ): ResultadoAcessoRota<T> {
   if (!usuario?.id) {
     return {
       permitido: false,
       redirecionarPara: "/auth",
       destinoOriginal: sanitizarDestinoPosLogin(destinoAtual),
+      motivo: "autenticacao-necessaria",
+    };
+  }
+  if (!usuarioPossuiPapelAutorizado(papeis)) {
+    return {
+      permitido: false,
+      redirecionarPara: "/auth",
+      destinoOriginal: sanitizarDestinoPosLogin(destinoAtual),
+      motivo: "acesso-nao-autorizado",
     };
   }
   return { permitido: true, usuario };
