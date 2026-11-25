@@ -86,11 +86,17 @@ function Relatorios() {
     }
     try {
       const { exportarCsv, exportarPdf } = await import("@/lib/exportar-relatorio");
-      if (formato === "CSV") exportarCsv(linhas);
+      const linhasFormatadas = linhas.map((l) => ({
+        ...l,
+        data: formatarData(l.data),
+        status: labelStatus(l.status),
+        prazo: formatarData(l.prazo),
+      }));
+      if (formato === "CSV") exportarCsv(linhasFormatadas);
       else
         await exportarPdf(
-          linhas,
-          `Período ${de || "início"} a ${ate || "hoje"} · Status: ${status}`,
+          linhasFormatadas,
+          `Período ${de ? formatarData(de) : "início"} a ${ate ? formatarData(ate) : "hoje"} · Status: ${status === "todos" ? "Todos" : labelStatus(status as typeof linhas[number]["status"])}`,
         );
       toast.success(`Relatório ${formato} baixado`, {
         description: `${linhas.length} registros de auditoria incluídos.`,

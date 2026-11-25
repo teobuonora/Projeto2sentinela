@@ -1,11 +1,29 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { CheckCircle2, Filter, Paperclip, Plus, Search, Send, User, X } from "lucide-react";
+import {
+  CheckCircle2,
+  Download,
+  FileSpreadsheet,
+  FileText,
+  Filter,
+  Paperclip,
+  Plus,
+  Search,
+  Send,
+  User,
+  X,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { DemandaModal } from "@/components/demanda-modal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -15,12 +33,14 @@ import {
 } from "@/components/ui/select";
 import { filtrarDemandasPorProtocolo } from "@/lib/busca-protocolo";
 import { filtrarDemandasQuadroPrincipal } from "@/lib/arquivamento-demanda";
+import { filtrarDemandasPorPeriodoEStatus } from "@/lib/exportar-relatorio";
 import {
   INSPETORES,
   SEVERIDADE_CLASS,
   SEVERIDADE_LABEL,
   STATUS_LIST,
   formatarData,
+  labelStatus,
   severidade,
   useSentinela,
   type Demanda,
@@ -64,6 +84,8 @@ function Kanban() {
   const [orgao, setOrgao] = useState("todos");
   const [inspetor, setInspetor] = useState("todos");
   const [status, setStatus] = useState("todos");
+  const [periodoDe, setPeriodoDe] = useState("");
+  const [periodoAte, setPeriodoAte] = useState("");
   const [arrastando, setArrastando] = useState<string | null>(null);
   const [sobre, setSobre] = useState<Status | null>(null);
   const [aberta, setAberta] = useState<Demanda | null>(null);
@@ -81,14 +103,45 @@ function Kanban() {
 
   const filtradas = useMemo(
     () =>
-      filtrarDemandasPorProtocolo(demandasQuadro, buscaProtocolo).filter(
-        (d) =>
-          (orgao === "todos" || d.orgao === orgao) &&
-          (inspetor === "todos" || d.inspetor === inspetor) &&
-          (status === "todos" || d.status === status),
+      filtrarDemandasPorPeriodoEStatus(
+        filtrarDemandasPorProtocolo(demandasQuadro, buscaProtocolo).filter(
+          (d) =>
+            (orgao === "todos" || d.orgao === orgao) &&
+            (inspetor === "todos" || d.inspetor === inspetor),
+        ),
+        { de: periodoDe, ate: periodoAte, status },
       ),
-    [demandasQuadro, buscaProtocolo, orgao, inspetor, status],
+    [demandasQuadro, buscaProtocolo, orgao, inspetor, status, periodoDe, periodoAte],
   );
+
+  const exportar = async (formato: "PDF" | "CSV") => {
+    if (!filtradas.length) {
+      toast.error("Nenhuma demanda para exportar com os filtros atuais.");
+      return;
+    }
+    try {
+      const { exportarDemandasCsv, exportarDemandasPdf } = await import("@/lib/exportar-relatorio");
+      if (formato === "CSV") {
+        exportarDemandasCsv(filtradas);
+      } else {
+        const resumo = [
+          `Período: ${periodoDe ? formatarData(periodoDe) : "início"} a ${periodoAte ? formatarData(periodoAte) : "todos"}`,
+          `Status: ${status === "todos" ? "Todos" : labelStatus(status as Status)}`,
+          orgao !== "todos" ? `Órgão: ${orgao}` : null,
+          inspetor !== "todos" ? `Inspetor: ${inspetor}` : null,
+          temBuscaProtocolo ? `Protocolo: ${buscaProtocolo.trim()}` : null,
+        ]
+          .filter(Boolean)
+          .join(" · ");
+        await exportarDemandasPdf(filtradas, resumo);
+      }
+      toast.success(`Relatório ${formato} baixado`, {
+        description: `${filtradas.length} demanda(s) incluída(s) no arquivo.`,
+      });
+    } catch {
+      toast.error("Não foi possível exportar as demandas.");
+    }
+  };
 
   const abrir = (d: Demanda | null) => {
     setAberta(d);
@@ -104,10 +157,30 @@ function Kanban() {
             Arraste os cartões entre as colunas para atualizar o status do fluxo.
           </p>
         </div>
-        <Button size="lg" onClick={() => abrir(null)}>
-          <Plus className="size-4" />
-          Nova Demanda
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="lg">
+                <Download className="size-4" />
+                Exportar
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => exportar("PDF")}>
+                <FileText className="size-4" />
+                Exportar PDF ({filtradas.length})
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => exportar("CSV")}>
+                <FileSpreadsheet className="size-4" />
+                Exportar CSV ({filtradas.length})
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <Button size="lg" onClick={() => abrir(null)}>
+            <Plus className="size-4" />
+            Nova Demanda
+          </Button>
+        </div>
       </div>
 
       <div className="flex flex-wrap items-center gap-3 rounded-xl border border-border bg-card p-3 card-elevated">
@@ -149,7 +222,31 @@ function Kanban() {
           opcoes={STATUS_LIST.map((s) => s.label)}
           valores={STATUS_LIST.map((s) => s.id)}
         />
-        {(temBuscaProtocolo || orgao !== "todos" || inspetor !== "todos" || status !== "todos") && (
+        <div className="flex flex-wrap items-center gap-2">
+          <Input
+            type="date"
+            value={periodoDe}
+            onChange={(e) => setPeriodoDe(e.target.value)}
+            aria-label="Prazo a partir de"
+            title="Prazo a partir de"
+            className="w-[155px] bg-background"
+          />
+          <span className="text-xs text-muted-foreground">até</span>
+          <Input
+            type="date"
+            value={periodoAte}
+            onChange={(e) => setPeriodoAte(e.target.value)}
+            aria-label="Prazo até"
+            title="Prazo até"
+            className="w-[155px] bg-background"
+          />
+        </div>
+        {(temBuscaProtocolo ||
+          orgao !== "todos" ||
+          inspetor !== "todos" ||
+          status !== "todos" ||
+          periodoDe ||
+          periodoAte) && (
           <Button
             variant="ghost"
             size="sm"
@@ -158,6 +255,8 @@ function Kanban() {
               setOrgao("todos");
               setInspetor("todos");
               setStatus("todos");
+              setPeriodoDe("");
+              setPeriodoAte("");
             }}
           >
             Limpar filtros
