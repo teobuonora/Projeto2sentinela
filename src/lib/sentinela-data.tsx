@@ -1,16 +1,26 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { arquivarDemanda } from "./arquivamento-demanda";
 import { dataLocalIso, marcarComoRespondida } from "./retorno-institucional";
 
-export type Status = "recebidas" | "analise" | "atendimento" | "concluidas";
+export type Status = "recebidas" | "analise" | "atendimento" | "concluidas" | "arquivada";
 
-export const STATUS_LIST: { id: Status; label: string }[] = [
+export const STATUS_LIST: { id: Exclude<Status, "arquivada">; label: string }[] = [
   { id: "recebidas", label: "Recebidas" },
   { id: "analise", label: "Em Análise" },
   { id: "atendimento", label: "Em Atendimento" },
   { id: "concluidas", label: "Concluídas" },
 ];
+
+export const STATUS_TODOS: { id: Status; label: string }[] = [
+  ...STATUS_LIST,
+  { id: "arquivada", label: "Arquivado" },
+];
+
+export function labelStatus(status: Status): string {
+  return STATUS_TODOS.find((s) => s.id === status)?.label ?? status;
+}
 
 export const INSPETORES = ["João Furtado", "Rafael Lins", "Téo Buonora", "Marina Tavares", "Carla Meneses"];
 
@@ -215,7 +225,7 @@ type Ctx = {
   upsert: (d: Demanda) => void;
   mover: (id: string, status: Status) => void;
   registrarRetorno: (d: Demanda) => Demanda;
-  remover: (id: string) => void;
+  arquivar: (d: Demanda) => Demanda;
   novoId: () => string;
 };
 
@@ -316,21 +326,22 @@ export function SentinelaProvider({
             {
               data: dataHoje,
               autor: usuarioAtual,
-              acao: `Movida para ${STATUS_LIST.find((s) => s.id === status)?.label}`,
+              acao: `Movida para ${labelStatus(status)}`,
             },
           ],
         };
         setDemandas((prev) => prev.map((x) => (x.id === id ? d : x)));
         salvar(d);
       },
-      remover: (id) => {
-        setDemandas((prev) => prev.filter((p) => p.id !== id));
-        supabase.from("demandas").delete().eq("id", id).then(({ error }) => {
-          if (error) {
-            toast.error("Não foi possível remover a demanda");
-            carregar();
-          }
-        });
+      arquivar: (d) => {
+        const arquivada = arquivarDemanda(d, usuarioAtual);
+        setDemandas((prev) =>
+          prev.some((p) => p.id === arquivada.id)
+            ? prev.map((p) => (p.id === arquivada.id ? arquivada : p))
+            : [arquivada, ...prev],
+        );
+        salvar(arquivada);
+        return arquivada;
       },
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps

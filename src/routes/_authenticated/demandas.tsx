@@ -1,17 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
-import { CheckCircle2, Filter, Paperclip, Plus, Send, User } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { CheckCircle2, Filter, Paperclip, Plus, Search, Send, User, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { DemandaModal } from "@/components/demanda-modal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
 } from "@/components/ui/select";
+import { filtrarDemandasPorProtocolo } from "@/lib/busca-protocolo";
+import { filtrarDemandasQuadroPrincipal } from "@/lib/arquivamento-demanda";
 import {
   INSPETORES,
   SEVERIDADE_CLASS,
@@ -26,6 +29,10 @@ import {
 import { orgaosQueryOptions, useOrgaos } from "@/lib/orgaos";
 
 export const Route = createFileRoute("/_authenticated/demandas")({
+  validateSearch: (search: Record<string, unknown>): { protocolo?: string } => {
+    const protocolo = typeof search["protocolo"] === "string" ? search["protocolo"].trim() : "";
+    return protocolo ? { protocolo } : {};
+  },
   loader: ({ context }) => context.queryClient.ensureQueryData(orgaosQueryOptions),
   head: () => ({
     meta: [
@@ -49,9 +56,11 @@ export const Route = createFileRoute("/_authenticated/demandas")({
 
 function Kanban() {
   const { demandas, mover, registrarRetorno } = useSentinela();
+  const { protocolo: protocoloInicial } = Route.useSearch();
   const { data: orgaos = [] } = useOrgaos();
   const opcoesOrgaos = Array.from(new Set([...orgaos.map((o) => o.nome), ...demandas.map((d) => d.orgao)]))
     .filter(Boolean).sort((a, b) => a.localeCompare(b, "pt-BR"));
+  const [buscaProtocolo, setBuscaProtocolo] = useState(protocoloInicial ?? "");
   const [orgao, setOrgao] = useState("todos");
   const [inspetor, setInspetor] = useState("todos");
   const [status, setStatus] = useState("todos");
@@ -60,15 +69,25 @@ function Kanban() {
   const [aberta, setAberta] = useState<Demanda | null>(null);
   const [modal, setModal] = useState(false);
 
+  useEffect(() => {
+    if (protocoloInicial !== undefined) {
+      setBuscaProtocolo(protocoloInicial);
+    }
+  }, [protocoloInicial]);
+
+  const temBuscaProtocolo = buscaProtocolo.trim().length > 0;
+
+  const demandasQuadro = useMemo(() => filtrarDemandasQuadroPrincipal(demandas), [demandas]);
+
   const filtradas = useMemo(
     () =>
-      demandas.filter(
+      filtrarDemandasPorProtocolo(demandasQuadro, buscaProtocolo).filter(
         (d) =>
           (orgao === "todos" || d.orgao === orgao) &&
           (inspetor === "todos" || d.inspetor === inspetor) &&
           (status === "todos" || d.status === status),
       ),
-    [demandas, orgao, inspetor, status],
+    [demandasQuadro, buscaProtocolo, orgao, inspetor, status],
   );
 
   const abrir = (d: Demanda | null) => {
@@ -92,6 +111,26 @@ function Kanban() {
       </div>
 
       <div className="flex flex-wrap items-center gap-3 rounded-xl border border-border bg-card p-3 card-elevated">
+        <div className="relative min-w-[260px] flex-1">
+          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={buscaProtocolo}
+            onChange={(e) => setBuscaProtocolo(e.target.value)}
+            placeholder="Buscar por número de protocolo (ex.: VISAT-2026-00841)"
+            aria-label="Buscar demanda por número de protocolo"
+            className="bg-background pl-9 pr-9"
+          />
+          {temBuscaProtocolo && (
+            <button
+              type="button"
+              onClick={() => setBuscaProtocolo("")}
+              aria-label="Limpar busca por protocolo"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded p-0.5 text-muted-foreground hover:text-foreground"
+            >
+              <X className="size-4" />
+            </button>
+          )}
+        </div>
         <span className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
           <Filter className="size-4" />
           Filtros
@@ -110,11 +149,12 @@ function Kanban() {
           opcoes={STATUS_LIST.map((s) => s.label)}
           valores={STATUS_LIST.map((s) => s.id)}
         />
-        {(orgao !== "todos" || inspetor !== "todos" || status !== "todos") && (
+        {(temBuscaProtocolo || orgao !== "todos" || inspetor !== "todos" || status !== "todos") && (
           <Button
             variant="ghost"
             size="sm"
             onClick={() => {
+              setBuscaProtocolo("");
               setOrgao("todos");
               setInspetor("todos");
               setStatus("todos");
@@ -124,6 +164,21 @@ function Kanban() {
           </Button>
         )}
       </div>
+
+      {temBuscaProtocolo && (
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-accent/40 px-3.5 py-2 text-sm">
+          <span>
+            {filtradas.length === 0
+              ? `Nenhuma demanda encontrada para o protocolo "${buscaProtocolo.trim()}".`
+              : filtradas.length === 1
+                ? `1 demanda localizada para "${buscaProtocolo.trim()}".`
+                : `${filtradas.length} demandas localizadas para "${buscaProtocolo.trim()}".`}
+          </span>
+          <Button variant="ghost" size="sm" onClick={() => setBuscaProtocolo("")}>
+            Mostrar todas
+          </Button>
+        </div>
+      )}
 
       <div className="grid gap-4 lg:grid-cols-4">
         {STATUS_LIST.map((coluna) => {
@@ -166,7 +221,9 @@ function Kanban() {
                     onDragStart={() => setArrastando(d.id)}
                     onDragEnd={() => setArrastando(null)}
                     onClick={() => abrir(d)}
-                    className={`cursor-grab rounded-lg border border-border bg-card p-3 card-elevated transition-transform active:cursor-grabbing hover:-translate-y-0.5 ${
+                    className={`cursor-grab rounded-lg border bg-card p-3 card-elevated transition-transform active:cursor-grabbing hover:-translate-y-0.5 ${
+                      temBuscaProtocolo ? "border-primary/60 ring-1 ring-primary/30" : "border-border"
+                    } ${
                       arrastando === d.id ? "opacity-50" : ""
                     }`}
                   >
