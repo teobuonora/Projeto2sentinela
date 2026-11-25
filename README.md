@@ -368,3 +368,179 @@ https://github.com/user-attachments/assets/cc346d49-baa0-4465-a690-329d10cce8bf
 
 UH15
 https://github.com/user-attachments/assets/db8cda11-d85f-4259-be62-70329a65f7da
+
+
+## 🚀 Sprint 3 — Entrega 5
+
+Durante a terceira sprint, foram implementadas seis
+histórias de usuário adicionais, ampliando as
+funcionalidades de gerenciamento, consulta e
+acompanhamento de demandas do Sentinela VISAT.
+
+### UH7 — Cadastro de Órgãos Solicitantes
+
+Implementação do cadastro dinâmico de órgãos
+solicitantes na área de configurações.
+
+**Funcionalidades:**
+- Cadastro e listagem de órgãos.
+- Persistência dos registros.
+- Bloqueio de cadastros vazios e duplicados.
+- Integração com o formulário de nova demanda.
+- Integração com os filtros do Kanban.
+
+**Validação:** 8/8 testes manuais aprovados.
+
+**Rastreabilidade:**
+- [Issue #12](https://github.com/teobuonora/Projeto2sentinela/issues/12)
+- [Commit 706a4b4](https://github.com/teobuonora/Projeto2sentinela/commit/706a4b4)
+- [Commit 9808911](https://github.com/teobuonora/Projeto2sentinela/commit/9808911)
+
+---
+
+### UH11 — Registro de Retorno à Instituição Demandante
+
+Implementação do registro formal de resposta à
+instituição demandante.
+
+**Funcionalidades:**
+- Alteração do status da demanda para Respondida.
+- Movimentação para a última coluna do Kanban.
+- Registro automático da data de encerramento.
+- Persistência das informações.
+
+**Validação:** 6/6 testes manuais aprovados.
+
+**Rastreabilidade:**
+- [Issue #13](https://github.com/teobuonora/Projeto2sentinela/issues/13)
+- [Commit bb557f4](https://github.com/teobuonora/Projeto2sentinela/commit/bb557f4)
+
+---
+
+### UH12 — Busca Rápida por Protocolo
+
+Implementação de uma ferramenta de localização
+rápida de demandas pelo número de protocolo.
+
+**Funcionalidades:**
+- Busca por protocolo no Kanban e Dashboard.
+- Exibição dos resultados correspondentes.
+- Abertura dos detalhes da demanda.
+- Tratamento de buscas sem resultados.
+- Limpeza dos resultados da pesquisa.
+
+**Validação:** 7/7 testes manuais aprovados.
+
+**Rastreabilidade:**
+- [Issue #14](https://github.com/teobuonora/Projeto2sentinela/issues/14)
+- [Commit 70ed6c1](https://github.com/teobuonora/Projeto2sentinela/commit/70ed6c1)
+- [Commit 818daf4](https://github.com/teobuonora/Projeto2sentinela/commit/818daf4)
+
+---
+
+### UH13 — Arquivamento de Demandas Inválidas
+
+Implementação do arquivamento lógico de demandas
+duplicadas ou com informações inválidas, preservando
+seus registros e histórico.
+
+**Funcionalidades:**
+- Alteração do status para Arquivado.
+- Remoção do card do Kanban principal.
+- Preservação dos dados e do histórico.
+- Consulta de demandas arquivadas pelos filtros.
+- Integração com a busca rápida por protocolo.
+
+**Validação:** 7/7 testes manuais aprovados.
+
+**Rastreabilidade:**
+- [Issue #15](https://github.com/teobuonora/Projeto2sentinela/issues/15)
+- [Commit c4e3207](https://github.com/teobuonora/Projeto2sentinela/commit/c4e3207)
+
+---
+
+### HU16 — Exportação de Relatório Gerencial
+
+Implementação da exportação de demandas para
+relatórios gerenciais.
+
+**Funcionalidades:**
+- Exportação em PDF e CSV.
+- Integração com Kanban e Relatórios.
+- Exportação por período e status.
+- Inclusão de protocolo, órgão, status e prazo.
+- Tratamento de consultas sem resultados.
+
+**Validação:** 7/7 testes manuais aprovados.
+
+**Rastreabilidade:**
+- [Issue #17](https://github.com/teobuonora/Projeto2sentinela/issues/17)
+- [Commit eb61c64](https://github.com/teobuonora/Projeto2sentinela/commit/eb61c64)
+
+---
+
+### 🧪 Consolidação dos Testes Manuais
+
+| História de usuário | Testes realizados | Aprovados |
+|---|---:|---:|
+| UH7 | 8 | 8 |
+| UH11 | 6 | 6 |
+| UH12 | 7 | 7 |
+| UH13 | 7 | 7 |
+| HU16 | 7 | 7 |
+| **Total** | **35** | **35** |
+
+Os testes manuais foram realizados no ambiente de
+prévia do Lovable, utilizando dados fictícios e
+considerando os critérios de confirmação de cada
+história de usuário.
+
+Os resultados encontram-se registrados nas
+respectivas issues do GitHub.
+
+Os commits de implementação foram gerados pela
+integração entre Lovable e GitHub.
+
+---
+
+### 🤝 Programação em Pares — Sprint 3
+
+#### Dupla 1 — Lucas Soares Pereira e Rubens
+
+**Histórias de usuário trabalhadas:**
+
+- UH7 — Cadastro de Órgãos Solicitantes.
+- UH11 — Registro de Retorno à Instituição Demandante.
+- UH12 — Busca Rápida por Protocolo.
+
+#### Dupla 2 — Téo Buonora e Heitor D'Albuquerque
+
+**Histórias de usuário trabalhadas:**
+
+- UH13 — Arquivamento de Demandas Inválidas.
+- UH14 — Autenticação de Usuário (Login).
+- HU16 — Exportação de Relatório Gerencial.
+
+#### Ferramentas utilizadas
+
+- Lovable.
+- GitHub.
+- Trello.
+
+---
+
+### 👥 Participantes da Sprint 3
+
+- Lucas Soares Pereira.
+- Téo Buonora.
+- Rubens.
+- João Gabriel de Melo.
+- Heitor D'Albuquerque.
+- Pedro Peixoto.
+- Rafael Gurgel.
+
+---
+
+### 🌐 Aplicação publicada
+
+[Acessar Sentinela VISAT](https://visat-sentinel-hub.lovable.app/)
