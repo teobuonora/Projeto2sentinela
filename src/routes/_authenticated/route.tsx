@@ -1,42 +1,16 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { AppSidebar } from "@/components/app-sidebar";
-import { avaliarAcessoRotaProtegida } from "@/lib/autenticacao-usuario";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { SentinelaProvider } from "@/lib/sentinela-data";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
-  beforeLoad: async ({ location }) => {
+  beforeLoad: async () => {
     const { data, error } = await supabase.auth.getUser();
-    const usuario = error ? null : data.user;
-    let papeis: string[] = [];
-
-    if (usuario?.id) {
-      const { data: rolesData, error: rolesError } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", usuario.id);
-      if (!rolesError && rolesData) {
-        papeis = rolesData.map((r) => r.role);
-      }
-    }
-
-    const decisao = avaliarAcessoRotaProtegida(usuario, location.href, papeis);
-    if (!decisao.permitido) {
-      if (decisao.motivo === "acesso-nao-autorizado") {
-        await supabase.auth.signOut();
-      }
-      throw redirect({
-        to: "/auth",
-        search: {
-          redirect: decisao.destinoOriginal,
-          motivo: decisao.motivo,
-        },
-      });
-    }
-    return { user: decisao.usuario };
+    if (error || !data.user) throw redirect({ to: "/auth" });
+    return { user: data.user };
   },
   component: AppShell,
 });

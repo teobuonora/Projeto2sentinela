@@ -12,7 +12,6 @@ import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { OrgaosSection } from "@/components/orgaos-section";
 import { orgaosQueryOptions } from "@/lib/orgaos";
-import { TAMANHO_MINIMO_SENHA, validarNovaSenha } from "@/lib/autenticacao-usuario";
 
 export const Route = createFileRoute("/_authenticated/configuracoes")({
   loader: ({ context }) => context.queryClient.ensureQueryData(orgaosQueryOptions),
@@ -37,7 +36,10 @@ export const Route = createFileRoute("/_authenticated/configuracoes")({
 });
 
 const regras = [
-  { rotulo: `Mínimo de ${TAMANHO_MINIMO_SENHA} caracteres`, teste: (s: string) => s.length >= TAMANHO_MINIMO_SENHA },
+  { rotulo: "Mínimo de 8 caracteres", teste: (s: string) => s.length >= 8 },
+  { rotulo: "Uma letra maiúscula", teste: (s: string) => /[A-Z]/.test(s) },
+  { rotulo: "Um número", teste: (s: string) => /\d/.test(s) },
+  { rotulo: "Um caractere especial", teste: (s: string) => /[^A-Za-z0-9]/.test(s) },
 ];
 
 function Configuracoes() {
@@ -84,11 +86,6 @@ function Configuracoes() {
   async function alterarSenha() {
     if (!atual) {
       toast.error("Informe sua senha atual.");
-      return;
-    }
-    const validacaoSenha = validarNovaSenha(senha, confirma);
-    if (!validacaoSenha.valido) {
-      toast.error(validacaoSenha.erro);
       return;
     }
     setAlterando(true);
