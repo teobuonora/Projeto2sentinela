@@ -547,6 +547,14 @@ integração entre Lovable e GitHub.
 
 ---
 
+### 🏃‍♂️ Sprint e Backlog
+
+Evidência da organização do backlog e das histórias de usuário da Sprint 03 no Trello.
+
+<img width="1914" height="843" alt="image" src="https://github.com/user-attachments/assets/ce2b86e0-57f5-4043-9b56-f5d73bed0b9b" />
+
+---
+
 ### 📺Screencast
 
 ---
