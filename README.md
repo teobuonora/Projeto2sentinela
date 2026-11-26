@@ -555,6 +555,14 @@ Evidência da organização do backlog e das histórias de usuário da Sprint 03
 
 ---
 
+### 🐛 Rastreamento de Bugs e Defeitos (Issue & Bug Tracker)
+
+Evidência do acompanhamento das atividades, implementações,
+testes e correções realizadas durante a Sprint 03.
+<img width="1600" height="535" alt="WhatsApp Image 2026-11-25 at 22 55 01" src="https://github.com/user-attachments/assets/4bd20e2c-6bf0-45b1-b483-9fb0d1ca689c" />
+
+---
+
 ### 📺Screencast
 
 ---
