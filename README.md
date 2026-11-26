@@ -309,7 +309,7 @@ Abaixo está o registro detalhado das sessões dedicadas à implementação e re
 
 #### Sessão 03 — Edição de Informações da Demanda e Parecer Técnico Rápido
 * **Histórias de Usuário:** **UH9** (*Edição de Informações da Demanda*) e **UH10** (*Inserção de Parecer Textual Rápido*)
-* **Dupla:** **Lucas Soares** (Piloto) e **Heitor D'Albuquerque** (Copiloto)
+* **Dupla:** **Lucas Soares** (Piloto) e **Joao Gabriel** (Copiloto)
 * **Objetivo:** Permitir que o servidor clique em qualquer card do Kanban para abrir o modal pré-preenchido com os dados atuais da demanda, editar campos cadastrais e registrar o parecer técnico da inspeção sanitária com persistência na base de dados.
 * **Dinâmica do Pareamento:**
   * **Lucas Soares (Piloto):** Implementou o hook de sincronização `useEffect` no `DemandaModal` para preencher o formulário ao receber a prop `demanda`, configurou o campo `Textarea` dedicado à inserção de pareceres e amarrou a chamada `salvar()` ao método `atualizar()` do contexto global do Sentinela.
