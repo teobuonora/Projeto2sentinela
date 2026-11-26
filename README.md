@@ -505,7 +505,7 @@ integração entre Lovable e GitHub.
 
 ### 🤝 Programação em Pares — Sprint 3
 
-#### Dupla 1 — Lucas Soares Pereira e Rubens
+#### Dupla 1 — Lucas Soares Pereira e João Gabriel
 
 **Histórias de usuário trabalhadas:**
 
